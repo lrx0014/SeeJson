@@ -3,6 +3,12 @@
 #include "SeeJSON.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <errno.h>   /* errno, ERANGE */
+#include <math.h>    /* HUGE_VAL */
+
+#define bool  int
+#define true  1
+#define false 0
 
 #define CHECK(context,ch)   \
             do{ \
@@ -16,6 +22,23 @@ typedef struct{
     const char* json;
 }json_context;
 
+static bool isDigit(const char ch)
+{
+    if(ch>='0' && ch<='9')
+    {
+        return true;
+    }
+    return false;
+}
+
+static bool isOneToNine(const char ch)
+{
+    if(ch>='1' && ch<='9')
+    {
+        return true;
+    }
+    return false;
+}
 
 static void json_parse_space(json_context* con)
 {
@@ -57,6 +80,52 @@ static int json_parse_null(json_context* con, json_node* node) {
     return JSON_PARSE_SUCCESS;
 }
 
+static int json_parse_number(json_context* con,json_node* node)
+{
+    const char* p = con->json;
+    if(*p=='-') p++;
+    if(*p=='0') p++;
+    else{
+        if(!isOneToNine(*p))
+        {
+            return JSON_PARSE_INVALID_VALUE;
+        }
+        for(p++;isDigit(*p);p++);
+    }
+    if(*p=='.')
+    {
+        p++;
+        if(!isDigit(*p))
+        {
+            return JSON_PARSE_INVALID_VALUE;
+        }
+        for(p++;isDigit(*p);p++);
+    }
+    if(*p=='e' || *p=='E')
+    {
+        p++;
+        if(*p=='+' || *p=='-')
+        {
+            p++;
+        }
+        if(!isDigit(*p))
+        {
+            return JSON_PARSE_INVALID_VALUE;
+        }
+        for(p++;isDigit(*p);p++);
+    }
+    errno = 0;
+    node->number = strtod(con->json,NULL);
+    if(errno==ERANGE && (node->number==HUGE_VAL || node->number==-HUGE_VAL))
+    {
+        return JSON_PARSE_NUMBER_OVERFLOW;
+    }
+    node->type = JSON_NUMBER;
+    con->json = p;
+    return JSON_PARSE_SUCCESS;
+
+}
+
 static int json_parse_value(json_context* con,json_node* node)
 {
     switch(*con->json)
@@ -65,7 +134,7 @@ static int json_parse_value(json_context* con,json_node* node)
         case 'f':   return json_parse_false(con,node);
         case 'n':   return json_parse_null(con,node);
         case '\0':  return JSON_PARSE_EXPECT_VALUE;
-        default:    return JSON_PARSE_INVALID_VALUE;
+        default:    return json_parse_number(con,node);
     }
 }
 
@@ -82,6 +151,7 @@ int json_parse(json_node* node,const char* json)
         json_parse_space(&con);
         if(*con.json!='\0')
         {
+            node->type = JSON_NULL;
             status = JSON_PARSE_ROOT_ERROR;
         }
     }
@@ -92,6 +162,12 @@ json_type json_get_type(const json_node* node)
 {
     assert(node!=NULL);
     return node->type;
+}
+
+double json_get_number(const json_node* node)
+{
+    assert(node!=NULL && node->type==JSON_NUMBER);
+    return node->number;
 }
 
 

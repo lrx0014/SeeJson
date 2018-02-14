@@ -14,6 +14,7 @@ typedef enum{
 
 /// JSON Data Structure
 typedef struct{
+    double number;
     json_type type;
 }json_node;
 
@@ -22,17 +23,20 @@ enum{
     JSON_PARSE_SUCCESS = 0,
     JSON_PARSE_EXPECT_VALUE,
     JSON_PARSE_INVALID_VALUE,
-    JSON_PARSE_ROOT_ERROR
+    JSON_PARSE_ROOT_ERROR,
+    JSON_PARSE_NUMBER_OVERFLOW
 };
 
 /******************************************************************
                             Public APIs
 ******************************************************************/
-/// Finished    ( 2018/2/13 Updated )
+/// Finished    ( 2018/2/14 Updated )
 
 int json_parse(json_node* json_node,const char* json_str);
 
 json_type json_get_type(const json_node* json_node);
+
+double json_get_number(const json_node* node);
 
 
 /*****************************************************************/
