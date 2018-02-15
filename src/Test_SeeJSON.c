@@ -30,22 +30,49 @@ static int status       = 0;   /* Return value of Main */
             TEST_CORE((expect)==(fact),expect,fact,"%.17g")
 
 
+#define TEST_STRING_IS_RIGHT(expect,fact,length)\
+            TEST_CORE(sizeof(expect)-1==length && memcmp(expect,fact,length)==0,expect,fact,"%s")
+
+
+#define TEST_TRUE(fact) \
+            TEST_CORE((fact)!=0,"true","false","%s")
+
+
+#define TEST_FALSE(fact) \
+            TEST_CORE((fact)==0,"false","true","%s")
+
+
 #define TEST_NUMBER(expect,json)  \
     do{ \
         json_node node; \
+        json_init(&node); \
         TEST_INT(JSON_PARSE_SUCCESS,json_parse(&node,json));\
         TEST_INT(JSON_NUMBER,json_get_type(&node));\
         TEST_DOUBLE(expect,json_get_number(&node));\
+        json_free(&node); \
     }while(0)
 
 
+#define TEST_STRING(expect,json) \
+            do{ \
+                json_node node; \
+                json_init(&node); \
+                TEST_INT(JSON_PARSE_SUCCESS,json_parse(&node,json)); \
+                TEST_INT(JSON_STRING,json_get_type(&node)); \
+                TEST_STRING_IS_RIGHT(expect,json_get_string(&node),json_get_string_length(&node)); \
+                json_free(&node); \
+            }while(0)
+
+
 /* Encapsulate the Test method */
-#define TEST_ERROR(error,json)\
+#define TESTER(error,json)\
     do{\
         json_node node;\
+        json_init(&node); \
         node.type = JSON_FALSE;\
         TEST_INT(error,json_parse(&node,json));\
         TEST_INT(JSON_NULL,json_get_type(&node));\
+        json_free(&node); \
     }while(0)
 
 
@@ -56,73 +83,60 @@ static int status       = 0;   /* Return value of Main */
 static void test_for_parse_null()
 {
     json_node node;
-    node.type = JSON_FALSE;
+    json_init(&node);
+    json_set_bool(&node,0);
     TEST_INT(JSON_PARSE_SUCCESS,json_parse(&node,"null"));
     TEST_INT(JSON_NULL,json_get_type(&node));
+    json_free(&node);
 }
 
 static void test_for_parse_true()
 {
     json_node node;
-    node.type = JSON_FALSE;
+    json_init(&node);
+    json_set_bool(&node,0);
     TEST_INT(JSON_PARSE_SUCCESS,json_parse(&node,"true"));
     TEST_INT(JSON_TRUE,json_get_type(&node));
+    json_free(&node);
 }
 
 static void test_for_parse_false()
 {
     json_node node;
-    node.type = JSON_FALSE;
+    json_init(&node);
+    json_set_bool(&node,0);
     TEST_INT(JSON_PARSE_SUCCESS,json_parse(&node,"false"));
     TEST_INT(JSON_FALSE,json_get_type(&node));
+    json_free(&node);
 }
 
 static void test_for_parse_expect_value()
 {
-    json_node node;
-
-    node.type = JSON_FALSE;
-    TEST_INT(JSON_PARSE_EXPECT_VALUE,json_parse(&node,""));
-    TEST_INT(JSON_NULL,json_get_type(&node));
-
-    node.type = JSON_FALSE;
-    TEST_INT(JSON_PARSE_EXPECT_VALUE,json_parse(&node," "));
-    TEST_INT(JSON_NULL,json_get_type(&node));
+    TESTER(JSON_PARSE_EXPECT_VALUE,"");
+    TESTER(JSON_PARSE_EXPECT_VALUE," ");
 }
 
 static void test_for_parse_invalid_value()
 {
-    json_node node;
-
-    node.type = JSON_FALSE;
-    TEST_INT(JSON_PARSE_INVALID_VALUE,json_parse(&node,"nux"));
-    TEST_INT(JSON_NULL,json_get_type(&node));
-
-    node.type = JSON_FALSE;
-    TEST_INT(JSON_PARSE_INVALID_VALUE,json_parse(&node,"?"));
-    TEST_INT(JSON_NULL,json_get_type(&node));
-
     /// Test for INVALID NUMBER Type
-    TEST_ERROR(JSON_PARSE_INVALID_VALUE, "+0");
-    TEST_ERROR(JSON_PARSE_INVALID_VALUE, "+1");
-    TEST_ERROR(JSON_PARSE_INVALID_VALUE, ".123");
-    TEST_ERROR(JSON_PARSE_INVALID_VALUE, "1.");
-    TEST_ERROR(JSON_PARSE_INVALID_VALUE, "INF");
-    TEST_ERROR(JSON_PARSE_INVALID_VALUE, "inf");
-    TEST_ERROR(JSON_PARSE_INVALID_VALUE, "NAN");
-    TEST_ERROR(JSON_PARSE_INVALID_VALUE, "nan");
+    TESTER(JSON_PARSE_INVALID_VALUE,"nux");
+    TESTER(JSON_PARSE_INVALID_VALUE,"?");
+    TESTER(JSON_PARSE_INVALID_VALUE, "+0");
+    TESTER(JSON_PARSE_INVALID_VALUE, "+1");
+    TESTER(JSON_PARSE_INVALID_VALUE, ".123");
+    TESTER(JSON_PARSE_INVALID_VALUE, "1.");
+    TESTER(JSON_PARSE_INVALID_VALUE, "INF");
+    TESTER(JSON_PARSE_INVALID_VALUE, "inf");
+    TESTER(JSON_PARSE_INVALID_VALUE, "NAN");
+    TESTER(JSON_PARSE_INVALID_VALUE, "nan");
 }
 
 static void test_for_parse_root_error()
 {
-    json_node node;
-    node.type = JSON_FALSE;
-    TEST_INT(JSON_PARSE_ROOT_ERROR,json_parse(&node,"null x"));
-    TEST_INT(JSON_NULL,json_get_type(&node));
-
-    TEST_ERROR(JSON_PARSE_ROOT_ERROR, "0123"); /* after zero should be '.' or nothing */
-    TEST_ERROR(JSON_PARSE_ROOT_ERROR, "0x0");
-    TEST_ERROR(JSON_PARSE_ROOT_ERROR, "0x123");
+    TESTER(JSON_PARSE_ROOT_ERROR,"null x");
+    TESTER(JSON_PARSE_ROOT_ERROR, "0123"); /* after zero should be '.' or nothing */
+    TESTER(JSON_PARSE_ROOT_ERROR, "0x0");
+    TESTER(JSON_PARSE_ROOT_ERROR, "0x123");
 }
 
 static void test_for_parse_number()
@@ -147,7 +161,6 @@ static void test_for_parse_number()
     TEST_NUMBER(1.234E+10, "1.234E+10");
     TEST_NUMBER(1.234E-10, "1.234E-10");
     TEST_NUMBER(0.0, "1e-10000"); /* must underflow */
-
     TEST_NUMBER(1.0000000000000002, "1.0000000000000002"); /* the smallest number > 1 */
     TEST_NUMBER( 4.9406564584124654e-324, "4.9406564584124654e-324"); /* minimum denormal */
     TEST_NUMBER(-4.9406564584124654e-324, "-4.9406564584124654e-324");
@@ -161,8 +174,79 @@ static void test_for_parse_number()
 
 static void test_for_number_overflow()
 {
-    TEST_ERROR(JSON_PARSE_NUMBER_OVERFLOW,"1e309");
-    TEST_ERROR(JSON_PARSE_NUMBER_OVERFLOW,"-1e309");
+    TESTER(JSON_PARSE_NUMBER_OVERFLOW,"1e309");
+    TESTER(JSON_PARSE_NUMBER_OVERFLOW,"-1e309");
+}
+
+static void test_for_parse_string()
+{
+    TEST_STRING("","\"\"");
+    TEST_STRING("Hello", "\"Hello\"");
+    TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
+    TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
+}
+
+static void test_for_parse_no_quotation_error()
+{
+    TESTER(JSON_PARSE_NO_QUOTATION_ERROR,"\"");
+    TESTER(JSON_PARSE_NO_QUOTATION_ERROR,"\"abc");
+}
+
+static void test_for_parse_invalid_string_escape()
+{
+    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\v\"");
+    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\'\"");
+    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\0\"");
+    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\x12\"");
+}
+
+static void test_for_parse_invalid_string()
+{
+    TESTER(JSON_PARSE_INVALID_STRING,"\"\x01\"");
+    TESTER(JSON_PARSE_INVALID_STRING,"\"\x1F\"");
+}
+
+static void test_for_access_null()
+{
+    json_node node;
+    json_init(&node);
+    json_set_string(&node,"a",1);
+    json_set_null(&node);
+    TEST_INT(JSON_NULL,json_get_type(&node));
+    json_free(&node);
+}
+
+static void test_for_access_bool()
+{
+    json_node node;
+    json_init(&node);
+    json_set_string(&node,"a",1);
+    json_set_bool(&node,1);
+    TEST_TRUE(json_get_bool(&node));
+    json_set_bool(&node,0);
+    TEST_FALSE(json_get_bool(&node));
+    json_free(&node);
+}
+
+static void test_for_access_number()
+{
+    json_node node;
+    json_init(&node);
+    json_set_string(&node,"a",1);
+    json_set_number(&node,1234.5);
+    TEST_DOUBLE(1234.5,json_get_number(&node));
+    json_free(&node);
+}
+
+static void test_for_access_string()
+{
+    json_node node;
+    json_init(&node);
+    json_set_string(&node,"",0);
+    TEST_STRING_IS_RIGHT("",json_get_string(&node),json_get_string_length(&node));
+    json_set_string(&node,"hello",5);
+    TEST_STRING_IS_RIGHT("hello",json_get_string(&node),json_get_string_length(&node));
+    json_free(&node);
 }
 
 static void test_parse()
@@ -175,6 +259,14 @@ static void test_parse()
     test_for_parse_root_error();
     test_for_parse_number();
     test_for_number_overflow();
+    test_for_parse_string();
+    test_for_parse_no_quotation_error();
+    test_for_parse_invalid_string_escape();
+    test_for_parse_invalid_string();
+    test_for_access_null();
+    test_for_access_bool();
+    test_for_access_number();
+    test_for_access_string();
 }
 
 int main()
