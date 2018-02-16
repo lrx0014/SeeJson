@@ -162,12 +162,67 @@ static int json_parse_number(json_context* con,json_node* node)
     return JSON_PARSE_SUCCESS;
 }
 
+static const char* json_parse_hex4(const char* p,unsigned* u)
+{
+    *u = 0;
+    int i;
+    for(i=0;i<4;i++)
+    {
+        char ch = *p++;
+        *u<<=4;
+        if(ch>='0' && ch<='9')
+        {
+            *u |= ch - '0';
+        }
+        else if(ch>='A' && ch<='F')
+        {
+            *u |= ch - ('A'-10);
+        }
+        else if(ch>='a' && ch<='f')
+        {
+            *u |= ch-('a'-10);
+        }
+        else{
+            return NULL;
+        }
+    }
+    return p;
+}
+
+static void json_utf8(json_context* con,unsigned u)
+{
+    if(u<=0x7F)
+    {
+        PUTC(con,u & 0xFF);
+    }
+    else if(u<=0x7FF)
+    {
+        PUTC(con,0xC0 | ((u>>6)&0xFF));
+        PUTC(con,0x80 | ( u   & 0x3F));
+    }
+    else if(u<=0xFFFF)
+    {
+        PUTC(con, 0xE0 | ((u >> 12) & 0xFF));
+        PUTC(con, 0x80 | ((u >>  6) & 0x3F));
+        PUTC(con, 0x80 | ( u        & 0x3F));
+    }
+    else{
+        assert(u <= 0x10FFFF);
+        PUTC(con, 0xF0 | ((u >> 18) & 0xFF));
+        PUTC(con, 0x80 | ((u >> 12) & 0x3F));
+        PUTC(con, 0x80 | ((u >>  6) & 0x3F));
+        PUTC(con, 0x80 | ( u        & 0x3F));
+    }
+}
+
 static int json_parse_string(json_context* con,json_node* node)
 {
     size_t head = con->top,len;
     const char* p;
     CHECK(con,'\"');
     p = con->json;
+    unsigned u1;
+    unsigned u2;
     for(;;)
     {
         char ch = *p++;
@@ -188,6 +243,38 @@ static int json_parse_string(json_context* con,json_node* node)
                 case 'n':  PUTC(con, '\n'); break;
                 case 'r':  PUTC(con, '\r'); break;
                 case 't':  PUTC(con, '\t'); break;
+                case 'u':
+                    if(!(p=json_parse_hex4(p,&u1)))
+                    {
+                        con->top = head;
+                        return JSON_PARSE_INVALID_UNICODE;
+                    }
+                    if(u1>=0xD800 && u1<=0xDBFF)
+                    {
+                        if(*p++ != '\\')
+                        {
+                            con->top = head;
+                            return JSON_PARSE_INVALID_UNICODE_SURROGATE;
+                        }
+                        if(*p++ != 'u')
+                        {
+                            con->top = head;
+                            return JSON_PARSE_INVALID_UNICODE_SURROGATE;
+                        }
+                        if(!(p=json_parse_hex4(p,&u2)))
+                        {
+                            con->top = head;
+                            return JSON_PARSE_INVALID_UNICODE;
+                        }
+                        if(u2<0xDC00 || u2>0xDFFF)
+                        {
+                            con->top = head;
+                            return JSON_PARSE_INVALID_UNICODE_SURROGATE;
+                        }
+                        u1 = (((u1-0xD800)<<10)|(u2-0xDC00))+0x10000;
+                    }
+                    json_utf8(con,u1);
+                    break;
                 default:
                     con->top = head;
                     return JSON_PARSE_INVALID_STRING_ESCAPE;

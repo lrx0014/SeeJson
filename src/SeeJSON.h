@@ -36,8 +36,10 @@ enum{
     /*4*/JSON_PARSE_NUMBER_OVERFLOW,
     /*5*/JSON_PARSE_NO_QUOTATION_ERROR,
     /*6*/JSON_PARSE_INVALID_STRING_ESCAPE,
-    /*7*/JSON_PARSE_INVALID_STRING
-};
+    /*7*/JSON_PARSE_INVALID_STRING,
+    /*8*/JSON_PARSE_INVALID_UNICODE,
+    /*9*/JSON_PARSE_INVALID_UNICODE_SURROGATE
+}json_errcode;
 
 char* err_code[] = {
     "JSON_PARSE_SUCCESS",
@@ -53,7 +55,7 @@ char* err_code[] = {
 /******************************************************************
                             Public APIs
 ******************************************************************/
-/// Finished    ( 2018/2/15 Updated )
+/// Finished    ( 2018/2/16 Updated )
 
 void json_init(json_node* node);
 

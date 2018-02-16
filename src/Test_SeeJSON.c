@@ -16,7 +16,7 @@ static int status       = 0;   /* Return value of Main */
         if(func)    \
             cases_passed++; \
         else{   \
-            fprintf(stderr,"%s:%d\nExpect for: " format " \nBut actually get: " format "\n",__FILE__,__LINE__,expect,fact); \
+            fprintf(stderr,"%s:%d\nExpect for: " format " \nBut actually get: " format "\n\n",__FILE__,__LINE__,expect,fact); \
             status = 1; \
         }   \
     }while(0)
@@ -110,15 +110,13 @@ static void test_for_parse_false()
     json_free(&node);
 }
 
-static void test_for_parse_expect_value()
+static void test_for_error()
 {
+    /* Test for PARSE_EXPECT_VALUE */
     TESTER(JSON_PARSE_EXPECT_VALUE,"");
     TESTER(JSON_PARSE_EXPECT_VALUE," ");
-}
 
-static void test_for_parse_invalid_value()
-{
-    /// Test for INVALID NUMBER Type
+    /* Test for INVALID NUMBER Type */
     TESTER(JSON_PARSE_INVALID_VALUE,"nux");
     TESTER(JSON_PARSE_INVALID_VALUE,"?");
     TESTER(JSON_PARSE_INVALID_VALUE, "+0");
@@ -129,19 +127,58 @@ static void test_for_parse_invalid_value()
     TESTER(JSON_PARSE_INVALID_VALUE, "inf");
     TESTER(JSON_PARSE_INVALID_VALUE, "NAN");
     TESTER(JSON_PARSE_INVALID_VALUE, "nan");
-}
 
-static void test_for_parse_root_error()
-{
+    /* Test for PARSE_ROOT_ERROR */
     TESTER(JSON_PARSE_ROOT_ERROR,"null x");
     TESTER(JSON_PARSE_ROOT_ERROR, "0123"); /* after zero should be '.' or nothing */
     TESTER(JSON_PARSE_ROOT_ERROR, "0x0");
     TESTER(JSON_PARSE_ROOT_ERROR, "0x123");
+
+    /* Test for PARSE_NUMBER_OVERFLOW */
+    TESTER(JSON_PARSE_NUMBER_OVERFLOW,"1e309");
+    TESTER(JSON_PARSE_NUMBER_OVERFLOW,"-1e309");
+
+    /* Test for PARSE_NO_QUATATION_ERROR */
+    TESTER(JSON_PARSE_NO_QUOTATION_ERROR,"\"");
+    TESTER(JSON_PARSE_NO_QUOTATION_ERROR,"\"abc");
+
+    /* Test for PARSE_INVALID_STRING_ESCAPE */
+    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\v\"");
+    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\'\"");
+    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\0\"");
+    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\x12\"");
+
+    /* Test for PARSE_INVALID_STRING */
+    TESTER(JSON_PARSE_INVALID_STRING,"\"\x01\"");
+    TESTER(JSON_PARSE_INVALID_STRING,"\"\x1F\"");
+
+    /* Test for PARSE_INVALID_UNICODE */
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u0\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u01\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u012\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u/000\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\uG000\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u0/00\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u0G00\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u0/00\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u00G0\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u000/\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u000G\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE, "\"\\u 123\"");
+
+    /* Test for PARSE_INVALID_UNICODE_SURROGATE */
+    TESTER(JSON_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uDBFF\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\\\\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\uDBFF\"");
+    TESTER(JSON_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\uE000\"");
 }
 
 static void test_for_parse_number()
 {
     /// Test for different types of numbers
+    //TEST_NUMBER(0.0,"000");
     TEST_NUMBER(0.0, "0");
     TEST_NUMBER(0.0, "-0");
     TEST_NUMBER(0.0, "-0.0");
@@ -172,38 +209,18 @@ static void test_for_parse_number()
     TEST_NUMBER(-1.7976931348623157e+308, "-1.7976931348623157e+308");
 }
 
-static void test_for_number_overflow()
-{
-    TESTER(JSON_PARSE_NUMBER_OVERFLOW,"1e309");
-    TESTER(JSON_PARSE_NUMBER_OVERFLOW,"-1e309");
-}
-
 static void test_for_parse_string()
 {
     TEST_STRING("","\"\"");
     TEST_STRING("Hello", "\"Hello\"");
     TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
     TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
-}
-
-static void test_for_parse_no_quotation_error()
-{
-    TESTER(JSON_PARSE_NO_QUOTATION_ERROR,"\"");
-    TESTER(JSON_PARSE_NO_QUOTATION_ERROR,"\"abc");
-}
-
-static void test_for_parse_invalid_string_escape()
-{
-    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\v\"");
-    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\'\"");
-    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\0\"");
-    TESTER(JSON_PARSE_INVALID_STRING_ESCAPE,"\"\\x12\"");
-}
-
-static void test_for_parse_invalid_string()
-{
-    TESTER(JSON_PARSE_INVALID_STRING,"\"\x01\"");
-    TESTER(JSON_PARSE_INVALID_STRING,"\"\x1F\"");
+    TEST_STRING("Hello\0World", "\"Hello\\u0000World\"");
+    TEST_STRING("\x24", "\"\\u0024\"");         /* Dollar sign U+0024 */
+    TEST_STRING("\xC2\xA2", "\"\\u00A2\"");     /* Cents sign U+00A2 */
+    TEST_STRING("\xE2\x82\xAC", "\"\\u20AC\""); /* Euro sign U+20AC */
+    TEST_STRING("\xF0\x9D\x84\x9E", "\"\\uD834\\uDD1E\"");  /* G clef sign U+1D11E */
+    TEST_STRING("\xF0\x9D\x84\x9E", "\"\\ud834\\udd1e\"");  /* G clef sign U+1D11E */
 }
 
 static void test_for_access_null()
@@ -251,18 +268,12 @@ static void test_for_access_string()
 
 static void test_parse()
 {
+    test_for_error();
     test_for_parse_null();
     test_for_parse_true();
     test_for_parse_false();
-    test_for_parse_expect_value();
-    test_for_parse_invalid_value();
-    test_for_parse_root_error();
     test_for_parse_number();
-    test_for_number_overflow();
-    test_for_parse_string();
-    test_for_parse_no_quotation_error();
-    test_for_parse_invalid_string_escape();
-    test_for_parse_invalid_string();
+    test_for_access_string();
     test_for_access_null();
     test_for_access_bool();
     test_for_access_number();
