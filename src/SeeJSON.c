@@ -31,6 +31,8 @@ typedef struct{
     size_t size,top;
 }json_context;
 
+/* Forward Declaration */
+static int json_parse_value(json_context* con,json_node* node);
 
 static bool isDigit(const char ch)
 {
@@ -294,16 +296,70 @@ static int json_parse_string(json_context* con,json_node* node)
     }
 }
 
+static int json_parse_array(json_context* con,json_node* node)
+{
+    size_t i;
+    size_t size = 0;
+    int ret;
+    CHECK(con,'[');
+    json_parse_space(con);
+    if(*con->json==']')
+    {
+        con->json++;
+        node->type = JSON_ARRAY;
+        node->value.array.size = 0;
+        node->value.array.element = NULL;
+        return JSON_PARSE_SUCCESS;
+    }
+    for(;;)
+    {
+        json_node e;
+        json_init(&e);
+        if((ret=json_parse_value(con,&e))!=JSON_PARSE_SUCCESS)
+        {
+            break;
+        }
+        memcpy(json_context_push(con,sizeof(json_node)),&e,sizeof(json_node));
+        size++;
+        json_parse_space(con);
+        if(*con->json==',')
+        {
+            con->json++;
+            json_parse_space(con);
+        }
+        else if(*con->json==']')
+        {
+            con->json++;
+            node->type = JSON_ARRAY;
+            node->value.array.size = size;
+            size *= sizeof(json_node);
+            memcpy(node->value.array.element=(json_node*)malloc(size),json_context_pop(con,size),size);
+            return JSON_PARSE_SUCCESS;
+        }
+        else
+        {
+            ret = JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT;
+            break;
+        }
+    }
+    for(i=0;i<size;i++)
+    {
+        json_free((json_node*)json_context_pop(con,sizeof(json_node)));
+    }
+    return ret;
+}
+
 static int json_parse_value(json_context* con,json_node* node)
 {
     switch(*con->json)
     {
-        case 't':   return json_parse_true(con,node);
-        case 'f':   return json_parse_false(con,node);
-        case 'n':   return json_parse_null(con,node);
+        case 't' :  return json_parse_true(con,node);
+        case 'f' :  return json_parse_false(con,node);
+        case 'n' :  return json_parse_null(con,node);
         case '\0':  return JSON_PARSE_EXPECT_VALUE;
-        case '"':   return json_parse_string(con,node);
-        default:    return json_parse_number(con,node);
+        case '"' :  return json_parse_string(con,node);
+        case '[' :  return json_parse_array(con,node);
+        default  :  return json_parse_number(con,node);
     }
 }
 
@@ -367,9 +423,22 @@ void json_set_number(json_node* node,double n)
 void json_free(json_node* node)
 {
     assert(node!=NULL);
-    if(node->type==JSON_STRING)
+    size_t i;
+    switch(node->type)
     {
+    case JSON_STRING:
         free(node->value.string.value);
+        break;
+
+    case JSON_ARRAY:
+        for(i=0;i<node->value.array.size;i++)
+        {
+            json_free(&node->value.array.element[i]);
+        }
+        free(node->value.array.element);
+        break;
+
+    default:break;
     }
     node->type = JSON_NULL;
 }
@@ -407,6 +476,19 @@ void json_set_string(json_node* node,const char* str,size_t len)
     node->value.string.value[len] = '\0';
     node->value.string.length = len;
     node->type = JSON_STRING;
+}
+
+size_t json_get_array_size(const json_node* node)
+{
+    assert(node!=NULL && node->type==JSON_ARRAY);
+    return node->value.array.size;
+}
+
+json_node* json_get_array_element_by_index(const json_node* node,size_t index)
+{
+    assert(node!=NULL && node->type==JSON_ARRAY);
+    assert(index<node->value.array.size);
+    return &node->value.array.element[index];
 }
 
 

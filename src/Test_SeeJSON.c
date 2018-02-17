@@ -64,6 +64,13 @@ static int status       = 0;   /* Return value of Main */
             }while(0)
 
 
+#if defined(_MSC_VER)
+#define TEST_SIZE_T(expect,fact) TEST_CORE((expect) == (fact), (size_t)expect, (size_t)fact, "%Iu")
+#else
+#define TEST_SIZE_T(expect,fact) TEST_CORE((expect) == (fact), (size_t)expect, (size_t)fact, "%zu")
+#endif // defined
+
+
 /* Encapsulate the Test method */
 #define TESTER(error,json)\
     do{\
@@ -173,6 +180,16 @@ static void test_for_error()
     TESTER(JSON_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\\\\"");
     TESTER(JSON_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\uDBFF\"");
     TESTER(JSON_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\uE000\"");
+
+    /* Test for invalid value in array */
+    TESTER(JSON_PARSE_INVALID_VALUE,"[1,]");
+    TESTER(JSON_PARSE_INVALID_VALUE,"[\"a\", nul]");
+
+    /* Test for PARSE_UNCOMPLETE_ARRAY_FORMAT */
+    TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1");
+    TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1}");
+    TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1 3");
+    TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[[]");
 }
 
 static void test_for_parse_number()
@@ -221,6 +238,46 @@ static void test_for_parse_string()
     TEST_STRING("\xE2\x82\xAC", "\"\\u20AC\""); /* Euro sign U+20AC */
     TEST_STRING("\xF0\x9D\x84\x9E", "\"\\uD834\\uDD1E\"");  /* G clef sign U+1D11E */
     TEST_STRING("\xF0\x9D\x84\x9E", "\"\\ud834\\udd1e\"");  /* G clef sign U+1D11E */
+}
+
+static void test_for_parse_array()
+{
+    size_t i,j;
+    json_node node;
+    json_init(&node);
+    TEST_INT(JSON_PARSE_SUCCESS,json_parse(&node,"[ ]"));
+    TEST_INT(JSON_ARRAY,json_get_type(&node));
+    TEST_SIZE_T(0,json_get_array_size(&node));
+    json_free(&node);
+
+    json_init(&node);
+    TEST_INT(JSON_PARSE_SUCCESS, json_parse(&node, "[ null , false , true , 123 , \"abc\" ]"));
+    TEST_INT(JSON_ARRAY, json_get_type(&node));
+    TEST_SIZE_T(5, json_get_array_size(&node));
+    TEST_INT(JSON_NULL,   json_get_type(json_get_array_element_by_index(&node, 0)));
+    TEST_INT(JSON_FALSE,  json_get_type(json_get_array_element_by_index(&node, 1)));
+    TEST_INT(JSON_TRUE,   json_get_type(json_get_array_element_by_index(&node, 2)));
+    TEST_INT(JSON_NUMBER, json_get_type(json_get_array_element_by_index(&node, 3)));
+    TEST_INT(JSON_STRING, json_get_type(json_get_array_element_by_index(&node, 4)));
+    TEST_DOUBLE(123.0, json_get_number(json_get_array_element_by_index(&node, 3)));
+    TEST_STRING_IS_RIGHT("abc", json_get_string(json_get_array_element_by_index(&node, 4)), json_get_string_length(json_get_array_element_by_index(&node, 4)));
+    json_free(&node);
+
+    json_init(&node);
+    TEST_INT(JSON_PARSE_SUCCESS, json_parse(&node, "[ [ ] , [ 0 ] , [ 0 , 1 ] , [ 0 , 1 , 2 ] ]"));
+    TEST_INT(JSON_ARRAY, json_get_type(&node));
+    TEST_SIZE_T(4, json_get_array_size(&node));
+    for (i = 0; i < 4; i++) {
+        json_node* a = json_get_array_element_by_index(&node, i);
+        TEST_INT(JSON_ARRAY, json_get_type(a));
+        TEST_SIZE_T(i, json_get_array_size(a));
+        for (j = 0; j < i; j++) {
+            json_node* e = json_get_array_element_by_index(a, j);
+            TEST_INT(JSON_NUMBER, json_get_type(e));
+            TEST_DOUBLE((double)j, json_get_number(e));
+        }
+    }
+    json_free(&node);
 }
 
 static void test_for_access_null()
@@ -278,6 +335,7 @@ static void test_parse()
     test_for_access_bool();
     test_for_access_number();
     test_for_access_string();
+    test_for_parse_array();
 }
 
 int main()
