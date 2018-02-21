@@ -14,12 +14,15 @@ typedef enum{
     JSON_OBJECT
 }json_type;
 
-typedef struct json_node json_node;
+typedef struct json_node   json_node;
+typedef struct json_member json_member;
 
 /// JSON Data Structure
 struct json_node{
     /* Value of JSON Node */
     union{
+        /* Object */
+        struct{ json_member* member; size_t size; }object;
         /* Array */
         struct{ json_node* element; size_t size; }array;
         /* String */
@@ -29,6 +32,12 @@ struct json_node{
     }value;
     /* Type of JSON Node */
     json_type type;
+};
+
+struct json_member{
+    char* key;
+    size_t key_len;
+    json_node node;
 };
 
 /// Error Code
@@ -43,7 +52,10 @@ enum{
     /* 7*/JSON_PARSE_INVALID_STRING,
     /* 8*/JSON_PARSE_INVALID_UNICODE,
     /* 9*/JSON_PARSE_INVALID_UNICODE_SURROGATE,
-    /*10*/JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT
+    /*10*/JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,
+    /*11*/JSON_PARSE_KEY_NOTFOUND,
+    /*12*/JSON_PARSE_MISS_COLON,
+    /*13*/JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT
 }json_errcode;
 
 char* err_code[] = {
@@ -57,7 +69,10 @@ char* err_code[] = {
     "JSON_PARSE_INVALID_STRING",
     "JSON_PARSE_INVALID_UNICODE",
     "JSON_PARSE_INVALID_UNICODE_SURROGATE",
-    "JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT"
+    "JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT",
+    "JSON_PARSE_KEY_NOTFOUND",
+    "JSON_PARSE_MISS_COLON",
+    "JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT"
 };
 
 /******************************************************************
@@ -88,6 +103,14 @@ void json_set_string(json_node* node,const char* str,size_t len);
 size_t json_get_array_size(const json_node* node);
 
 json_node* json_get_array_element_by_index(const json_node* node,size_t index);
+
+size_t json_get_object_size(const json_node* node);
+
+const char* json_get_object_key_by_index(const json_node* node,size_t index);
+
+size_t json_get_object_key_len_by_index(const json_node* node,size_t index);
+
+json_node* json_get_object_value_by_index(const json_node* node,size_t index);
 
 int json_parse(json_node* json_node,const char* json_str);
 

@@ -31,7 +31,7 @@ static int status       = 0;   /* Return value of Main */
 
 
 #define TEST_STRING_IS_RIGHT(expect,fact,length)\
-            TEST_CORE(sizeof(expect)-1==length && memcmp(expect,fact,length)==0,expect,fact,"%s")
+            TEST_CORE(((sizeof(expect)-1)==length && memcmp(expect,fact,length+1)==0),expect,fact,"%s")
 
 
 #define TEST_TRUE(fact) \
@@ -190,6 +190,26 @@ static void test_for_error()
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1}");
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1 3");
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[[]");
+
+    /* Test for PARSE_KEY_NOTFOUND */
+    TESTER(JSON_PARSE_KEY_NOTFOUND, "{:1,");
+    TESTER(JSON_PARSE_KEY_NOTFOUND, "{1:1,");
+    TESTER(JSON_PARSE_KEY_NOTFOUND, "{true:1,");
+    TESTER(JSON_PARSE_KEY_NOTFOUND, "{false:1,");
+    TESTER(JSON_PARSE_KEY_NOTFOUND, "{null:1,");
+    TESTER(JSON_PARSE_KEY_NOTFOUND, "{[]:1,");
+    TESTER(JSON_PARSE_KEY_NOTFOUND, "{{}:1,");
+    TESTER(JSON_PARSE_KEY_NOTFOUND, "{\"a\":1,");
+
+    /* Test for PARSE_MISS_COLON */
+    TESTER(JSON_PARSE_MISS_COLON,"{\"a\"}");
+    TESTER(JSON_PARSE_MISS_COLON,"{\"a\",\"b\"}");
+
+    /* Test for PARSE_UNCOMPLETE_OBJECT_FORMAT */
+    TESTER(JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT,"{\"a\":1");
+    TESTER(JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT,"{\"a\":1]");
+    TESTER(JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT,"{\"a\":1 \"b\"");
+    TESTER(JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT,"{\"a\":{}");
 }
 
 static void test_for_parse_number()
@@ -280,6 +300,66 @@ static void test_for_parse_array()
     json_free(&node);
 }
 
+static void test_for_parse_object()
+{
+    json_node node;
+    size_t i;
+
+    json_init(&node);
+    TEST_INT(JSON_PARSE_SUCCESS, json_parse(&node, " { } "));
+    TEST_INT(JSON_OBJECT, json_get_type(&node));
+    TEST_SIZE_T(0, json_get_object_size(&node));
+    json_free(&node);
+
+    json_init(&node);
+    TEST_INT(JSON_PARSE_SUCCESS, json_parse(&node,
+        " { "
+        "\"n\" : null , "
+        "\"f\" : false , "
+        "\"t\" : true , "
+        "\"i\" : 123 , "
+        "\"s\" : \"abc\", "
+        "\"a\" : [ 1, 2, 3 ],"
+        "\"o\" : { \"1\" : 1, \"2\" : 2, \"3\" : 3 }"
+        " } "
+    ));
+    TEST_INT(JSON_OBJECT, json_get_type(&node));
+    TEST_SIZE_T(7, json_get_object_size(&node));
+    TEST_STRING_IS_RIGHT("n", json_get_object_key_by_index(&node, 0), json_get_object_key_len_by_index(&node, 0));
+    TEST_INT(JSON_NULL,   json_get_type(json_get_object_value_by_index(&node, 0)));
+    TEST_STRING_IS_RIGHT("f", json_get_object_key_by_index(&node, 1), json_get_object_key_len_by_index(&node, 1));
+    TEST_INT(JSON_FALSE,  json_get_type(json_get_object_value_by_index(&node, 1)));
+    TEST_STRING_IS_RIGHT("t", json_get_object_key_by_index(&node, 2), json_get_object_key_len_by_index(&node, 2));
+    TEST_INT(JSON_TRUE,   json_get_type(json_get_object_value_by_index(&node, 2)));
+    TEST_STRING_IS_RIGHT("i", json_get_object_key_by_index(&node, 3), json_get_object_key_len_by_index(&node, 3));
+    TEST_INT(JSON_NUMBER, json_get_type(json_get_object_value_by_index(&node, 3)));
+    TEST_DOUBLE(123.0, json_get_number(json_get_object_value_by_index(&node, 3)));
+    TEST_STRING_IS_RIGHT("s", json_get_object_key_by_index(&node, 4), json_get_object_key_len_by_index(&node, 4));
+    TEST_INT(JSON_STRING, json_get_type(json_get_object_value_by_index(&node, 4)));
+    TEST_STRING_IS_RIGHT("abc", json_get_string(json_get_object_value_by_index(&node, 4)), json_get_string_length(json_get_object_value_by_index(&node, 4)));
+    TEST_STRING_IS_RIGHT("a", json_get_object_key_by_index(&node, 5), json_get_object_key_len_by_index(&node, 5));
+    TEST_INT(JSON_ARRAY, json_get_type(json_get_object_value_by_index(&node, 5)));
+    TEST_SIZE_T(3, json_get_array_size(json_get_object_value_by_index(&node, 5)));
+    for (i = 0; i < 3; i++) {
+        json_node* e = json_get_array_element_by_index(json_get_object_value_by_index(&node, 5), i);
+        TEST_INT(JSON_NUMBER, json_get_type(e));
+        TEST_DOUBLE(i + 1.0, json_get_number(e));
+    }
+    TEST_STRING_IS_RIGHT("o", json_get_object_key_by_index(&node, 6), json_get_object_key_len_by_index(&node, 6));
+    {
+        json_node* o = json_get_object_value_by_index(&node, 6);
+        TEST_INT(JSON_OBJECT, json_get_type(o));
+        for (i = 0; i < 3; i++) {
+            json_node* ov = json_get_object_value_by_index(o, i);
+            TEST_TRUE('1' + i == json_get_object_key_by_index(o, i)[0]);
+            TEST_SIZE_T(1, json_get_object_key_len_by_index(o, i));
+            TEST_INT(JSON_NUMBER, json_get_type(ov));
+            TEST_DOUBLE(i + 1.0, json_get_number(ov));
+        }
+    }
+    json_free(&node);
+}
+
 static void test_for_access_null()
 {
     json_node node;
@@ -336,6 +416,7 @@ static void test_parse()
     test_for_access_number();
     test_for_access_string();
     test_for_parse_array();
+    test_for_parse_object();
 }
 
 int main()

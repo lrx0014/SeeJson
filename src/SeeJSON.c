@@ -217,9 +217,9 @@ static void json_utf8(json_context* con,unsigned u)
     }
 }
 
-static int json_parse_string(json_context* con,json_node* node)
+static int json_parse_string_raw(json_context* con,char** str,size_t* len)
 {
-    size_t head = con->top,len;
+    size_t head = con->top;
     const char* p;
     CHECK(con,'\"');
     p = con->json;
@@ -231,8 +231,8 @@ static int json_parse_string(json_context* con,json_node* node)
         switch(ch)
         {
         case '\"':
-            len = con->top - head;
-            json_set_string(node,(const char*)json_context_pop(con,len),len);
+            *len = con->top - head;
+            *str = json_context_pop(con,*len);
             con->json = p;
             return JSON_PARSE_SUCCESS;
         case '\\':
@@ -296,6 +296,18 @@ static int json_parse_string(json_context* con,json_node* node)
     }
 }
 
+static int json_parse_string(json_context* con,json_node* node)
+{
+    int ret;
+    char* s;
+    size_t len;
+    if((ret=json_parse_string_raw(con,&s,&len))==JSON_PARSE_SUCCESS)
+    {
+        json_set_string(node,s,len);
+    }
+    return ret;
+}
+
 static int json_parse_array(json_context* con,json_node* node)
 {
     size_t i;
@@ -349,6 +361,84 @@ static int json_parse_array(json_context* con,json_node* node)
     return ret;
 }
 
+static int json_parse_object(json_context* con,json_node* node)
+{
+    size_t i,size;
+    json_member member;
+    int ret;
+    CHECK(con,'{');
+    json_parse_space(con);
+    if(*con->json=='}')
+    {
+        con->json++;
+        node->type = JSON_OBJECT;
+        node->value.object.member = 0;
+        node->value.object.size = 0;
+        return JSON_PARSE_SUCCESS;
+    }
+    member.key = NULL;
+    size = 0;
+    for(;;)
+    {
+        char* str;
+        json_init(&member.node);
+        if(*con->json!='"')
+        {
+            ret = JSON_PARSE_KEY_NOTFOUND;
+            break;
+        }
+        if((ret=json_parse_string_raw(con,&str,&member.key_len))!=JSON_PARSE_SUCCESS)
+        {
+            break;
+        }
+        memcpy(member.key=(char*)malloc(member.key_len+1),str,member.key_len);
+        member.key[member.key_len] = '\0';
+        json_parse_space(con);
+        if(*con->json!=':')
+        {
+            ret = JSON_PARSE_MISS_COLON;
+            break;
+        }
+        con->json++;
+        json_parse_space(con);
+        if((ret=json_parse_value(con,&member.node))!=JSON_PARSE_SUCCESS)
+        {
+            break;
+        }
+        memcpy(json_context_push(con,sizeof(json_member)),&member,sizeof(json_member));
+        size++;
+        member.key = NULL;
+        json_parse_space(con);
+        if(*con->json==',')
+        {
+            con->json++;
+            json_parse_space(con);
+        }
+        else if(*con->json=='}')
+        {
+            size_t s =sizeof(json_member)*size;
+            con->json++;
+            node->type = JSON_OBJECT;
+            node->value.object.size = size;
+            memcpy(node->value.object.member=(json_member*)malloc(s),json_context_pop(con,s),s);
+            return JSON_PARSE_SUCCESS;
+        }
+        else{
+            ret = JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT;
+            break;
+        }
+    }
+    free(member.key);
+    for(i=0;i<size;i++)
+    {
+        json_member* member = (json_member*)json_context_pop(con,sizeof(json_member));
+        free(member->key);
+        json_free(&member->node);
+    }
+    node->type = JSON_NULL;
+    return ret;
+}
+
 static int json_parse_value(json_context* con,json_node* node)
 {
     switch(*con->json)
@@ -359,6 +449,7 @@ static int json_parse_value(json_context* con,json_node* node)
         case '\0':  return JSON_PARSE_EXPECT_VALUE;
         case '"' :  return json_parse_string(con,node);
         case '[' :  return json_parse_array(con,node);
+        case '{' :  return json_parse_object(con,node);
         default  :  return json_parse_number(con,node);
     }
 }
@@ -438,6 +529,15 @@ void json_free(json_node* node)
         free(node->value.array.element);
         break;
 
+    case JSON_OBJECT:
+        for(i=0;i<node->value.object.size;i++)
+        {
+            free(node->value.object.member[i].key);
+            json_free(&node->value.object.member[i].node);
+        }
+        free(node->value.object.member);
+        break;
+
     default:break;
     }
     node->type = JSON_NULL;
@@ -491,4 +591,30 @@ json_node* json_get_array_element_by_index(const json_node* node,size_t index)
     return &node->value.array.element[index];
 }
 
+size_t json_get_object_size(const json_node* node)
+{
+    assert(node!=NULL && node->type==JSON_OBJECT);
+    return node->value.object.size;
+}
+
+const char* json_get_object_key_by_index(const json_node* node,size_t index)
+{
+    assert(node!=NULL && node->type==JSON_OBJECT);
+    assert(index<node->value.object.size);
+    return node->value.object.member[index].key;
+}
+
+size_t json_get_object_key_len_by_index(const json_node* node,size_t index)
+{
+    assert(node!=NULL && node->type==JSON_OBJECT);
+    assert(index<node->value.object.size);
+    return node->value.object.member[index].key_len;
+}
+
+json_node* json_get_object_value_by_index(const json_node* node,size_t index)
+{
+    assert(node!=NULL && node->type==JSON_OBJECT);
+    assert(index<node->value.object.size);
+    return &node->value.object.member[index].node;
+}
 
