@@ -1,6 +1,7 @@
 /// SeeJSON.c
 
 #include "SeeJSON.h"
+#include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <errno.h>   /* errno, ERANGE */
@@ -10,6 +11,10 @@
 #ifndef JSON_PARSE_STACK_INIT_SIZE
 #define JSON_PARSE_STACK_INIT_SIZE 256
 #endif // JSON_PARSE_STACK_INIT_SIZE
+
+#ifndef JSON_ENCODE_INIT_SIZE
+#define JSON_ENCODE_INIT_SIZE 256
+#endif // JSON_ENCODE_INIT_SIZE
 
 #define bool  int
 #define true  1
@@ -22,6 +27,8 @@
             }while(0)
 
 #define PUTC(c, ch)         do { *(char*)json_context_push(c, sizeof(char)) = (ch); } while(0)
+
+#define PUTS(c, s, len)     memcpy(json_context_push(c, len), s, len)
 
 
 /// JSON String
@@ -122,7 +129,10 @@ static int json_parse_null(json_context* con, json_node* node) {
 static int json_parse_number(json_context* con,json_node* node)
 {
     const char* p = con->json;
-    if(*p=='-') p++;
+    if(*p=='-')
+    {
+        p++;
+    }
     if(*p=='0') p++;
     else{
         if(!isOneToNine(*p))
@@ -454,6 +464,86 @@ static int json_parse_value(json_context* con,json_node* node)
     }
 }
 
+static void json_encode_string(json_context* con,const char* s,size_t len)
+{
+    static const char hex_digits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+    size_t i,size;
+    char* head,*p;
+    assert(s!=NULL);
+    head = json_context_push(con,size=len*6+2);
+    p = head;
+    *p++ = '"';
+    for(i=0;i<len;i++)
+    {
+        unsigned char ch = (unsigned char)s[i];
+        switch(ch)
+        {
+            case '\"': *p++ = '\\'; *p++ = '\"'; break;
+            case '\\': *p++ = '\\'; *p++ = '\\'; break;
+            case '\b': *p++ = '\\'; *p++ = 'b';  break;
+            case '\f': *p++ = '\\'; *p++ = 'f';  break;
+            case '\n': *p++ = '\\'; *p++ = 'n';  break;
+            case '\r': *p++ = '\\'; *p++ = 'r';  break;
+            case '\t': *p++ = '\\'; *p++ = 't';  break;
+            default:
+                if (ch < 0x20)
+                {
+                    *p++ = '\\'; *p++ = 'u'; *p++ = '0'; *p++ = '0';
+                    *p++ = hex_digits[ch >> 4];
+                    *p++ = hex_digits[ch & 15];
+                }
+                else
+                {
+                    *p++ = s[i];
+                }
+
+        }
+    }
+    *p++ = '"';
+    con->top -= size - (p-head);
+}
+
+static void json_encode_value(json_context* con,const json_node* node)
+{
+    size_t i;
+    switch(node->type)
+    {
+        case JSON_NULL  : PUTS(con,"null",4);  break;
+        case JSON_FALSE : PUTS(con,"false",5); break;
+        case JSON_TRUE  : PUTS(con,"true",4);  break;
+        case JSON_NUMBER: con->top -= 32 - sprintf(json_context_push(con,32),"%.17g",node->value.number); break;
+        case JSON_STRING: json_encode_string(con,node->value.string.value,node->value.string.length); break;
+        case JSON_ARRAY :
+            PUTC(con,'[');
+            for(i=0;i<node->value.array.size;i++)
+            {
+                if(i>0)
+                {
+                    PUTC(con,',');
+                }
+                json_encode_value(con,&node->value.array.element[i]);
+            }
+            PUTC(con,']');
+            break;
+        case JSON_OBJECT:
+            PUTC(con,'{');
+            for(i=0;i<node->value.object.size;i++)
+            {
+                if(i>0)
+                {
+                    PUTC(con,',');
+                }
+                json_encode_string(con,node->value.object.member[i].key,node->value.object.member[i].key_len);
+                PUTC(con,':');
+                json_encode_value(con,&node->value.object.member[i].node);
+            }
+            PUTC(con,'}');
+            break;
+        default:
+            assert(0 && "INVALID TYPE ERROR...");
+    }
+}
+
 /**********************************************************
                 Implements of Public APIs
 **********************************************************/
@@ -616,5 +706,20 @@ json_node* json_get_object_value_by_index(const json_node* node,size_t index)
     assert(node!=NULL && node->type==JSON_OBJECT);
     assert(index<node->value.object.size);
     return &node->value.object.member[index].node;
+}
+
+char* json_encode(const json_node* node,size_t* length)
+{
+    json_context con;
+    assert(node!=NULL);
+    con.stack = (char*)malloc(con.size=JSON_ENCODE_INIT_SIZE);
+    con.top = 0;
+    json_encode_value(&con,node);
+    if(length)
+    {
+        *length = con.top;
+    }
+    PUTC(&con,'\0');
+    return con.stack;
 }
 

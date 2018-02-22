@@ -78,7 +78,7 @@ char* err_code[] = {
 /******************************************************************
                             Public APIs
 ******************************************************************/
-/// Finished    ( 2018/2/17 Updated )
+/// Finished    ( 2018/2/22 Updated )
 
 void json_init(json_node* node);
 
@@ -114,6 +114,8 @@ json_node* json_get_object_value_by_index(const json_node* node,size_t index);
 
 int json_parse(json_node* json_node,const char* json_str);
 
+char* json_encode(const json_node* node,size_t* length);
+
 json_type json_get_type(const json_node* json_node);
 
 
@@ -121,8 +123,6 @@ json_type json_get_type(const json_node* json_node);
 
 /*****************************************************************/
 /// TODO
-
-char* json_encode(json_node* node);
 
 void json_decode(json_node* node,const char* json_str);
 

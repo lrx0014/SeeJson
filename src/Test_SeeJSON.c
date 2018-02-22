@@ -83,6 +83,20 @@ static int status       = 0;   /* Return value of Main */
     }while(0)
 
 
+#define RT_TESTER(json) \
+    do{ \
+        json_node node; \
+        char* json_test; \
+        size_t len; \
+        json_init(&node); \
+        TEST_INT(JSON_PARSE_SUCCESS,json_parse(&node,json)); \
+        json_test = json_encode(&node,&len); \
+        TEST_STRING_IS_RIGHT(json,json_test,len); \
+        json_free(&node); \
+        free(json_test); \
+    }while(0)
+
+
 /**********************************************
                     TestCases
  *********************************************/
@@ -210,6 +224,50 @@ static void test_for_error()
     TESTER(JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT,"{\"a\":1]");
     TESTER(JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT,"{\"a\":1 \"b\"");
     TESTER(JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT,"{\"a\":{}");
+}
+
+static void roundtrip_test()
+{
+    /* Test for encoding true-false-null */
+    RT_TESTER("null");
+    RT_TESTER("false");
+    RT_TESTER("true");
+
+    /* Test for encoding number */
+    RT_TESTER("0");
+    RT_TESTER("-0");
+    RT_TESTER("1");
+    RT_TESTER("-1");
+    RT_TESTER("1.5");
+    RT_TESTER("-1.5");
+    RT_TESTER("3.25");
+    RT_TESTER("1e+020");
+    RT_TESTER("1.234e+020");
+    RT_TESTER("1.234e-020");
+    RT_TESTER("1.0000000000000002"); /* the smallest number > 1 */
+    RT_TESTER("4.9406564584124654e-324"); /* minimum denormal */
+    RT_TESTER("-4.9406564584124654e-324");
+    RT_TESTER("2.2250738585072009e-308");  /* Max subnormal double */
+    RT_TESTER("-2.2250738585072009e-308");
+    RT_TESTER("2.2250738585072014e-308");  /* Min normal positive double */
+    RT_TESTER("-2.2250738585072014e-308");
+    RT_TESTER("1.7976931348623157e+308");  /* Max double */
+    RT_TESTER("-1.7976931348623157e+308");
+
+    /* Test for encoding string */
+    RT_TESTER("\"\"");
+    RT_TESTER("\"Hello\"");
+    RT_TESTER("\"Hello\\nWorld\"");
+    RT_TESTER("\"\\\" \\\\ / \\b \\f \\n \\r \\t\"");
+    RT_TESTER("\"Hello\\u0000World\"");
+
+    /* Test for encoding array */
+    RT_TESTER("[]");
+    RT_TESTER("[null,false,true,123,\"abc\",[1,2,3]]");
+
+    /* Test for encoding object */
+    RT_TESTER("{}");
+    RT_TESTER("{\"n\":null,\"f\":false,\"t\":true,\"i\":123,\"s\":\"abc\",\"a\":[1,2,3],\"o\":{\"1\":1,\"2\":2,\"3\":3}}");
 }
 
 static void test_for_parse_number()
@@ -417,6 +475,7 @@ static void test_parse()
     test_for_access_string();
     test_for_parse_array();
     test_for_parse_object();
+    roundtrip_test();
 }
 
 int main()
