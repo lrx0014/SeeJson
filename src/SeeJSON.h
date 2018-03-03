@@ -14,8 +14,9 @@ typedef enum{
     JSON_OBJECT
 }json_type;
 
-typedef struct json_node   json_node;
-typedef struct json_member json_member;
+typedef struct json_node    json_node;
+typedef struct json_member  json_member;
+typedef struct json_visitor json_visitor;
 
 /// JSON Data Structure
 struct json_node{
@@ -32,12 +33,20 @@ struct json_node{
     }value;
     /* Type of JSON Node */
     json_type type;
+    /* Visit JSON Structure */
+    void* (*getValue)(json_node this,char* k);
 };
 
 struct json_member{
     char* key;
     size_t key_len;
     json_node node;
+};
+
+struct json_visitor{
+    char* key;
+    json_type type;
+    void* value;
 };
 
 /// Error Code
@@ -113,6 +122,7 @@ size_t json_get_object_key_len_by_index(const json_node* node,size_t index);
 json_node* json_get_object_value_by_index(const json_node* node,size_t index);
 
 int json_parse(json_node* json_node,const char* json_str);
+int json_decode(json_node* node,const char* json_str);
 
 char* json_encode(const json_node* node,size_t* length);
 
@@ -123,9 +133,6 @@ json_type json_get_type(const json_node* json_node);
 
 /*****************************************************************/
 /// TODO
-
-void json_decode(json_node* node,const char* json_str);
-
 
 
 #endif // SEEJSON_H_INCLUDED

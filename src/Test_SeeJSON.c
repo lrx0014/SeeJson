@@ -478,10 +478,47 @@ static void test_parse()
     roundtrip_test();
 }
 
+static void test_for_visit_structure()
+{
+    /// Read JSON
+    const char* json = "{\"name\":\"lrx\"}";
+
+    /// Parse JSON Into json_node
+    json_node node;
+    json_init(&node);
+    json_decode(&node,json);
+
+    /// Use json.getValue() to visit it
+    const char* k = json_get_object_key_by_index(&node,0);
+    printf("key:%s\n",k);
+    printf("name:%s\n",node.getValue(node,"name"));
+}
+
+static void test_for_visitor()
+{
+    /// Read JSON
+
+    /// PARSE JSON into json_node
+
+    /// Use Visitor to visit this node
+}
+
+static void test_for_visit_directly()
+{
+    /// Read JSON
+
+    /// Parse JSON into json_node
+
+    /// Visit this node directly
+}
+
 int main()
 {
     test_parse();
     printf("%d/%d (%3.2f%%) Cases Passed. \n",cases_passed,cases_total,cases_passed*100.0/cases_total);
+
+    test_for_visit_structure();
+
     system("pause");
     return status;
 }

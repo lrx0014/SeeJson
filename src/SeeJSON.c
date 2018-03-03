@@ -544,6 +544,52 @@ static void json_encode_value(json_context* con,const json_node* node)
     }
 }
 
+static void* getValue(json_node this,char* k)
+{
+    int this_size = this.value.object.size;
+    void* ret;
+    char* _null  = "null";
+    char* _true  = "true";
+    char* _false = "false";
+    char* _ntfnd = "NOT FOUND";
+
+    for(int i=0;i<this_size;i++)
+    {
+        //printf("==>%s",this.value.object.member[i].key);
+        //printf("==>%s\n",k);
+        if(strcmp(this.value.object.member[i].key,k)==0)
+        {
+            switch(this.value.object.member[i].node.type)
+            {
+            case JSON_NULL:
+                ret = _null;
+                break;
+            case JSON_TRUE:
+                ret = _true;
+                break;
+            case JSON_FALSE:
+                ret = _false;
+                break;
+            case JSON_STRING:
+                ret = (this.value.object.member[i].node.value.string.value);
+                break;
+            case JSON_NUMBER:
+                ret = &(this.value.object.member[i].node.value.number);
+                break;
+            case JSON_ARRAY:
+                ret = (this.value.object.member[i].node.value.array.element);
+                break;
+            case JSON_OBJECT:
+                ret = (this.value.object.member[i].node.value.object.member);
+                break;
+            }
+            return ret;
+        }
+    }
+    ret = _ntfnd;
+    return ret;
+}
+
 /**********************************************************
                 Implements of Public APIs
 **********************************************************/
@@ -551,6 +597,7 @@ static void json_encode_value(json_context* con,const json_node* node)
 void json_init(json_node* node)
 {
     node->type = JSON_NULL;
+    node->getValue = getValue;
 }
 
 void json_set_null(json_node* node)
@@ -721,5 +768,10 @@ char* json_encode(const json_node* node,size_t* length)
     }
     PUTC(&con,'\0');
     return con.stack;
+}
+
+int json_decode(json_node* node,const char* json_str)
+{
+    return json_parse(node,json_str);
 }
 
