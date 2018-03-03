@@ -3,6 +3,10 @@ A Simple JSON Parser developed by Pure C
 
 (Under Development)
 
+SeeJson is a json tool library realized with C language (C89 standard), including analyzer and builder to solve standard JSON string, supporting cross-platform and cross-compiler; the project adopts TDD for dsign including 20 APIs which can satisfy the basic use demand of JSON.
+
+SeeJson是用纯C语言(C89标准)实现的一个json工具库，包含能够处理标准JSON字符串的解析器/生成器，支持跨平台和跨编译器；其中共设计了20个APIs，它们可以满足基本的JSON使用需求
+
 **技术要点 Keypoint：**<br>
 * 纯C语言 (C89)
 * 使用函数指针实现结构体成员方法，模拟类似class的效果，增强易用性(OOC 面向对象C语言)
