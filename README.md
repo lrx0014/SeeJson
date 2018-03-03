@@ -15,6 +15,12 @@ A Simple JSON Parser developed by Pure C
 #### 使用说明 ####
 (占位待续)
 
+**(0) 导入方法**
+
+导入SeeJSON的方法主要有两种：
+* 直接引入.c和.h
+* 编译为链接库
+
 **(1) JSON字符串编码为JSON节点**
 ```c
     const char* json = "{\"name\":\"Amy\"}"; /* 创建JSON字符串 */
@@ -49,3 +55,12 @@ printf("length:%d\n",length); /* 输出字符串长度 */
 string:{"name":"Amy"}
 length:14
 ```
+
+**(3) 数据结构和支持的数据类型**
+(占位)
+
+**(4) 多种访问方法**
+(占位)
+
+**(5) 设计思路**
+(占位)
