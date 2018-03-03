@@ -21,7 +21,7 @@ A Simple JSON Parser developed by Pure C
 * 直接引入.c和.h
 * 编译为链接库
 
-**(1) JSON字符串编码为JSON节点**
+**(1) JSON字符串解码为JSON节点**
 ```c
     const char* json = "{\"name\":\"Amy\"}"; /* 创建JSON字符串 */
     
@@ -38,7 +38,7 @@ A Simple JSON Parser developed by Pure C
 name:Amy
 ```
 
-**(2) JSON节点解码为JSON字符串**
+**(2) JSON节点编码为JSON字符串**
 ```c
 /* 本例使用的节点是上面编码的那一个node */
 
