@@ -15,7 +15,7 @@ A Simple JSON Parser developed by Pure C
 #### 使用说明 ####
 (占位待续)
 
-**(1) 基础语法**
+**(1) JSON字符串编码为JSON节点**
 ```c
     const char* json = "{\"name\":\"Amy\"}"; /* 创建JSON字符串 */
     
@@ -27,7 +27,25 @@ A Simple JSON Parser developed by Pure C
 
     printf("name:%s\n",node.getValue(node,"name")); /* 使用getValue成员方法获取键"name"对应的值 */
 ```
-运行效果:
+**运行效果:**
 ```shell
 name:Amy
+```
+
+**(2) JSON节点解码为JSON字符串**
+```c
+/* 本例使用的节点是上面编码的那一个node */
+
+size_t length; /* 用于记录生成的字符串的长度 */
+
+char* str = json_encode(&node,&length); /* 解码 */
+
+printf("string:%s\n",str); /* 输出JSON字符串 */
+
+printf("length:%d\n",length); /* 输出字符串长度 */
+```
+**运行效果:**
+```shell
+string:{"name":"Amy"}
+length:14
 ```
