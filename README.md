@@ -91,7 +91,8 @@ json_node city = *(json_node*)node.getValue(node,"city");
 /* 从内层节点中取得第二个name属性，"城区"这个字符串 */
 printf("name2:%s\n",city.getValue(city,"name"));
 
-/* 获取area属性，SeeJSON的数组类型使用json_node作为容器存储 */
+/* 获取area属性，SeeJSON的数组类型为JSON_ARRAY，本质是一个json_node数组 */
+/* 所以每个数组元素也需要单独再处理一下 */
 json_node *arr = city.getValue(city,"area");
 
 /* 访问数组元素，目前这个方法还不友好，正在想办法 */
@@ -106,6 +107,7 @@ area:东城区
 **(3) 数据结构和支持的数据类型**
 
 SeeJSON内置的数据类型有：布尔型(true,false)、空值(null)、数值型(number)、字符串型(string)、数组(array)、对象(object)
+
 核心数据结构由结构体json_node定义：
 ```c
 struct json_node{
@@ -142,9 +144,6 @@ struct json_visitor{
 
 **(4) 多种访问方法**
 (占位)
-* 直接访问
-* getValue()
+* 直接访问 (不推荐)
+* getValue方法
 * 访问器访问
-
-**(5) 注意事项**
-(占位)
