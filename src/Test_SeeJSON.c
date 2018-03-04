@@ -204,6 +204,8 @@ static void test_for_error()
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1}");
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1 3");
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[[]");
+    //TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[\"a\",\"b\",\"c\"]");
+    //TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1,\"a\",3]");
 
     /* Test for PARSE_KEY_NOTFOUND */
     TESTER(JSON_PARSE_KEY_NOTFOUND, "{:1,");
@@ -494,22 +496,49 @@ static void test_for_visit_structure()
     printf("name:%s\n",node.getValue(node,"name"));
 }
 
+static void test_for_complex_demand()
+{
+    /// Read JSON from file
+    json_node node;
+    node = read_json_from_file("city.json");
+
+    printf("name1:%s\n",node.getValue(node,"name"));
+
+    /// Get Inner Json Object
+    json_node city;
+    city = *(json_node*)node.getValue(node,"city");
+
+    printf("name2:%s\n",city.getValue(city,"name"));
+
+    /// Get Array Element
+    json_node *arr = city.getValue(city,"area");
+
+    printf("area:%s\n",arr[0].value.string.value);
+
+}
+
 static void test_for_visitor()
 {
-    /// Read JSON
-
-    /// PARSE JSON into json_node
+    /// Read JSON from file
+    json_node node;
+    node = read_json_from_file("city.json");
 
     /// Use Visitor to visit this node
+    json_visitor city = see_json(node,"city");
+    json_visitor arr  = see_json(*(json_node*)city.value,"area");
+
+    printf("type:%d\n",arr.type);
+
 }
 
 static void test_for_visit_directly()
 {
-    /// Read JSON
+    /// Read JSON from file
+    json_node node;
+    node = read_json_from_file("city.json");
 
-    /// Parse JSON into json_node
+    printf("area:%s\n",node.value.object.member[1].node.value.object.member[1].node.value.array.element[1].value.string.value);
 
-    /// Visit this node directly
 }
 
 int main()
@@ -517,7 +546,12 @@ int main()
     test_parse();
     printf("%d/%d (%3.2f%%) Cases Passed. \n",cases_passed,cases_total,cases_passed*100.0/cases_total);
 
-    test_for_visit_structure();
+    //test_for_visit_structure();
+    test_for_complex_demand();
+
+    test_for_visit_directly();
+
+    test_for_visitor();
 
     system("pause");
     return status;

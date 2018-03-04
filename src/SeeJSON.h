@@ -44,7 +44,7 @@ struct json_member{
 };
 
 struct json_visitor{
-    char* key;
+    const char* key;
     json_type type;
     void* value;
 };
@@ -128,11 +128,16 @@ char* json_encode(const json_node* node,size_t* length);
 
 json_type json_get_type(const json_node* json_node);
 
+const char* read_string_from_file(char* path);
+
+json_node read_json_from_file(char* path);
 
 
 
 /*****************************************************************/
 /// TODO
+
+json_visitor see_json(json_node node,const char* key);
 
 
 #endif // SEEJSON_H_INCLUDED

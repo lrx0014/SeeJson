@@ -557,9 +557,11 @@ static void* getValue(json_node this,char* k)
     {
         //printf("==>%s",this.value.object.member[i].key);
         //printf("==>%s\n",k);
-        if(strcmp(this.value.object.member[i].key,k)==0)
+        json_member cur;
+        cur = this.value.object.member[i];
+        if(strcmp(cur.key,k)==0)
         {
-            switch(this.value.object.member[i].node.type)
+            switch(cur.node.type)
             {
             case JSON_NULL:
                 ret = _null;
@@ -571,16 +573,16 @@ static void* getValue(json_node this,char* k)
                 ret = _false;
                 break;
             case JSON_STRING:
-                ret = (this.value.object.member[i].node.value.string.value);
+                ret = (cur.node.value.string.value);
                 break;
             case JSON_NUMBER:
-                ret = &(this.value.object.member[i].node.value.number);
+                ret = &(cur.node.value.number);
                 break;
             case JSON_ARRAY:
-                ret = (this.value.object.member[i].node.value.array.element);
+                ret = (cur.node.value.array.element);
                 break;
             case JSON_OBJECT:
-                ret = (this.value.object.member[i].node.value.object.member);
+                ret = &(cur.node);
                 break;
             }
             return ret;
@@ -773,5 +775,78 @@ char* json_encode(const json_node* node,size_t* length)
 int json_decode(json_node* node,const char* json_str)
 {
     return json_parse(node,json_str);
+}
+
+const char* read_string_from_file(char* path)
+{
+    assert(path!=NULL);
+    FILE *fp;
+    char *str;
+    char txt[1000];
+    int filesize;
+    if ((fp=fopen(path,"r"))==NULL)
+    {
+        printf("Open File:%s Error!!\n",path);
+        return NULL;
+    }
+
+    fseek(fp,0,SEEK_END);
+
+    filesize = ftell(fp);
+    str=(char *)malloc(filesize);
+    str[0]=0;
+
+    rewind(fp);
+    while((fgets(txt,1000,fp))!=NULL)
+    {
+        strcat(str,txt);
+    }
+    fclose(fp);
+    return str;
+}
+
+json_node read_json_from_file(char* path)
+{
+    assert(path!=NULL);
+    const char* str;
+    str = read_string_from_file(path);
+    json_node node;
+    json_init(&node);
+    if(str!=NULL)
+    {
+        json_decode(&node,str);
+    }else{
+        node.type = JSON_NULL;
+    }
+
+    return node;
+}
+
+json_visitor see_json(json_node node,const char* key)
+{
+    json_visitor ret;
+    ret.type = JSON_NULL;
+
+    if(node.type==JSON_NULL)
+    {
+        return ret;
+    }
+
+    size_t this_size = node.value.object.size;
+
+    for(int i=0;i<this_size;i++)
+    {
+        json_member cur = node.value.object.member[i];
+        if(strcmp(cur.key,key)==0)
+        {
+            ret.key = key;
+            ret.type = cur.node.type;
+            ret.value = &cur.node;
+            return ret;
+        }
+    }
+
+    return ret;
+
 }
 
