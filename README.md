@@ -59,12 +59,91 @@ printf("length:%d\n",length); /* 输出字符串长度 */
 string:{"name":"Amy"}
 length:14
 ```
+**更复杂的应用**
 
+有如下JSON文档，名字为"city.json"
+```json
+{
+    "name": "北京市",
+    "city": {
+        "name": "城区",
+        "area": [
+          "东城区",
+          "海淀区",
+          "朝阳区",
+          "其他"
+        ]
+    }
+}
+```
+使用read_json_from_file(path)读取这个文件，可以直接返回一个json_node结构，而无需再手动设置
+```c
+json_node node = read_json_from_file("city.json");
+```
+按照JSON文档的层级关系分别调用getValue()，getValue的返回值是空类型指针，必须自己按照对应的数据类型进行类型转换，以后(可能)会实现一个自动类型转换功能。
+```c
+printf("name1:%s\n",node.getValue(node,"name")); /* 获取第一层的name属性，也就是"北京市"这个字符串 */
+
+/* 获取内层的city属性，这个属性对应的值被解释为一个新的json_object */
+/* 所以要再声明一个json_node节点city来存储它，不要忘记转换类型 */
+json_node city = *(json_node*)node.getValue(node,"city"); 
+
+/* 从内层节点中取得第二个name属性，"城区"这个字符串 */
+printf("name2:%s\n",city.getValue(city,"name"));
+
+/* 获取area属性，SeeJSON的数组类型使用json_node作为容器存储 */
+json_node *arr = city.getValue(city,"area");
+
+/* 访问数组元素，目前这个方法还不友好，正在想办法 */
+printf("area:%s\n",arr[0].value.string.value);
+```
+**运行效果**
+```shell
+name1:北京市
+name2:城区
+area:东城区
+```
 **(3) 数据结构和支持的数据类型**
-(占位)
+SeeJSON内置的数据类型有：布尔型(true,false)、空值(null)、数值型(number)、字符串型(string)、数组(array)、对象(object)
+核心数据结构由结构体json_node定义：
+```c
+struct json_node{
+    /* Value of JSON Node */
+    union{
+        /* Object */
+        struct{ json_member* member; size_t size; }object;
+        /* Array */
+        struct{ json_node* element; size_t size; }array;
+        /* String */
+        struct{ char* value; size_t length; }string;
+        /* Number */
+        double number;
+    }value;
+    /* Type of JSON Node */
+    json_type type;
+    /* Visit JSON Structure */
+    void* (*getValue)(json_node this,char* k);
+};
+
+struct json_member{
+    char* key;
+    size_t key_len;
+    json_node node;
+};
+
+/* 访问器 */
+struct json_visitor{
+    char* key;
+    json_type type;
+    void* value;
+};
+```
 
 **(4) 多种访问方法**
 (占位)
+* 直接访问
+* getValue()
+* 访问器访问
 
-**(5) 设计思路**
+**(5) 注意事项**
 (占位)
