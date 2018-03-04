@@ -104,6 +104,7 @@ name2:城区
 area:东城区
 ```
 **(3) 数据结构和支持的数据类型**
+
 SeeJSON内置的数据类型有：布尔型(true,false)、空值(null)、数值型(number)、字符串型(string)、数组(array)、对象(object)
 核心数据结构由结构体json_node定义：
 ```c
