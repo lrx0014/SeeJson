@@ -1,4 +1,4 @@
-/// Test_SeeJSON.c
+/* Test_SeeJSON.c */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,7 +68,7 @@ static int status       = 0;   /* Return value of Main */
 #define TEST_SIZE_T(expect,fact) TEST_CORE((expect) == (fact), (size_t)expect, (size_t)fact, "%Iu")
 #else
 #define TEST_SIZE_T(expect,fact) TEST_CORE((expect) == (fact), (size_t)expect, (size_t)fact, "%zu")
-#endif // defined
+#endif 
 
 
 /* Encapsulate the Test method */
@@ -204,8 +204,8 @@ static void test_for_error()
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1}");
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1 3");
     TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[[]");
-    //TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[\"a\",\"b\",\"c\"]");
-    //TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1,\"a\",3]");
+    /*TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[\"a\",\"b\",\"c\"]");*/
+    /*TESTER(JSON_PARSE_UNCOMPLETE_ARRAY_FORMAT,"[1,\"a\",3]");*/
 
     /* Test for PARSE_KEY_NOTFOUND */
     TESTER(JSON_PARSE_KEY_NOTFOUND, "{:1,");
@@ -274,8 +274,8 @@ static void roundtrip_test()
 
 static void test_for_parse_number()
 {
-    /// Test for different types of numbers
-    //TEST_NUMBER(0.0,"000");
+    /* Test for different types of numbers */
+    /* TEST_NUMBER(0.0,"000"); */
     TEST_NUMBER(0.0, "0");
     TEST_NUMBER(0.0, "-0");
     TEST_NUMBER(0.0, "-0.0");
@@ -482,15 +482,15 @@ static void test_parse()
 
 static void test_for_visit_structure()
 {
-    /// Read JSON
+    /* Read JSON */
     const char* json = "{\"name\":\"lrx\"}";
 
-    /// Parse JSON Into json_node
+    /* Parse JSON Into json_node */
     json_node node;
     json_init(&node);
     json_decode(&node,json);
 
-    /// Use json.getValue() to visit it
+    /* Use json.getValue() to visit it */
     const char* k = json_get_object_key_by_index(&node,0);
     printf("key:%s\n",k);
     printf("name:%s\n",node.getValue(node,"name"));
@@ -498,19 +498,19 @@ static void test_for_visit_structure()
 
 static void test_for_complex_demand()
 {
-    /// Read JSON from file
+    /* Read JSON from file */
     json_node node;
     node = read_json_from_file("city.json");
 
     printf("name1:%s\n",node.getValue(node,"name"));
 
-    /// Get Inner Json Object
+    /* Get Inner Json Object */
     json_node city;
     city = *(json_node*)node.getValue(node,"city");
 
     printf("name2:%s\n",city.getValue(city,"name"));
 
-    /// Get Array Element
+    /* Get Array Element */
     json_node *arr = city.getValue(city,"area");
 
     printf("area:%s\n",arr[0].value.string.value);
@@ -519,11 +519,11 @@ static void test_for_complex_demand()
 
 static void test_for_visitor()
 {
-    /// Read JSON from file
+    /* Read JSON from file */
     json_node node;
     node = read_json_from_file("city.json");
 
-    /// Use Visitor to visit this node
+    /* Use Visitor to visit this node */
     json_visitor city = see_json(node,"city");
     json_visitor arr  = see_json(*(json_node*)city.value,"area");
 
@@ -533,7 +533,7 @@ static void test_for_visitor()
 
 static void test_for_visit_directly()
 {
-    /// Read JSON from file
+    /* Read JSON from file */
     json_node node;
     node = read_json_from_file("city.json");
 
@@ -543,10 +543,11 @@ static void test_for_visit_directly()
 
 int main()
 {
+    SeeJSON_Version();
+
     test_parse();
     printf("%d/%d (%3.2f%%) Cases Passed. \n",cases_passed,cases_total,cases_passed*100.0/cases_total);
 
-    //test_for_visit_structure();
     test_for_complex_demand();
 
     test_for_visit_directly();

@@ -3,7 +3,13 @@
 
 #include <stddef.h> /* size_t */
 
-/// JSON DataType
+#ifdef __cplusplus
+#define EXPORT extern "C" __declspec (dllexport)
+#else
+#define EXPORT __declspec (dllexport)
+#endif 
+
+/* JSON DataType */
 typedef enum{
     JSON_NULL,
     JSON_FALSE,
@@ -18,7 +24,7 @@ typedef struct json_node    json_node;
 typedef struct json_member  json_member;
 typedef struct json_visitor json_visitor;
 
-/// JSON Data Structure
+/* JSON Data Structure */
 struct json_node{
     /* Value of JSON Node */
     union{
@@ -49,7 +55,7 @@ struct json_visitor{
     void* value;
 };
 
-/// Error Code
+/* Error Code */
 enum{
     /* 0*/JSON_PARSE_SUCCESS = 0,
     /* 1*/JSON_PARSE_EXPECT_VALUE,
@@ -67,6 +73,7 @@ enum{
     /*13*/JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT
 }json_errcode;
 
+/*
 char* err_code[] = {
     "JSON_PARSE_SUCCESS",
     "JSON_PARSE_EXPECT_VALUE",
@@ -83,11 +90,14 @@ char* err_code[] = {
     "JSON_PARSE_MISS_COLON",
     "JSON_PARSE_UNCOMPLETE_OBJECT_FORMAT"
 };
+*/
 
 /******************************************************************
                             Public APIs
 ******************************************************************/
-/// Finished    ( 2018/2/22 Updated )
+/*               Finished    ( 2018/2/22 Updated )               */
+
+EXPORT void SeeJSON_Version(void);
 
 void json_init(json_node* node);
 
@@ -135,9 +145,8 @@ json_node read_json_from_file(char* path);
 
 
 /*****************************************************************/
-/// TODO
 
 json_visitor see_json(json_node node,const char* key);
 
 
-#endif // SEEJSON_H_INCLUDED
+#endif

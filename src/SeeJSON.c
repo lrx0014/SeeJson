@@ -1,4 +1,4 @@
-/// SeeJSON.c
+/* SeeJSON.c */
 
 #include "SeeJSON.h"
 #include <stdio.h>
@@ -10,11 +10,11 @@
 
 #ifndef JSON_PARSE_STACK_INIT_SIZE
 #define JSON_PARSE_STACK_INIT_SIZE 256
-#endif // JSON_PARSE_STACK_INIT_SIZE
+#endif 
 
 #ifndef JSON_ENCODE_INIT_SIZE
 #define JSON_ENCODE_INIT_SIZE 256
-#endif // JSON_ENCODE_INIT_SIZE
+#endif 
 
 #define bool  int
 #define true  1
@@ -31,7 +31,7 @@
 #define PUTS(c, s, len)     memcpy(json_context_push(c, len), s, len)
 
 
-/// JSON String
+/* JSON String */
 typedef struct{
     const char* json;
     char* stack;
@@ -553,10 +553,9 @@ static void* getValue(json_node this,char* k)
     char* _false = "false";
     char* _ntfnd = "NOT FOUND";
 
-    for(int i=0;i<this_size;i++)
+    int i;
+    for(i=0;i<this_size;i++)
     {
-        //printf("==>%s",this.value.object.member[i].key);
-        //printf("==>%s\n",k);
         json_member cur;
         cur = this.value.object.member[i];
         if(strcmp(cur.key,k)==0)
@@ -595,6 +594,11 @@ static void* getValue(json_node this,char* k)
 /**********************************************************
                 Implements of Public APIs
 **********************************************************/
+
+EXPORT void SeeJSON_Version(void)
+{
+    printf("SeeJSON ( ver-alpha 1.0.0 )  2018-01-30 \n\n");
+}
 
 void json_init(json_node* node)
 {
@@ -834,7 +838,8 @@ json_visitor see_json(json_node node,const char* key)
 
     size_t this_size = node.value.object.size;
 
-    for(int i=0;i<this_size;i++)
+    int i;
+    for(i=0;i<this_size;i++)
     {
         json_member cur = node.value.object.member[i];
         if(strcmp(cur.key,key)==0)
