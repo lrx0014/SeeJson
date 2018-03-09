@@ -133,17 +133,10 @@ struct json_member{
     size_t key_len;
     json_node node;
 };
-
-/* 访问器 */
-struct json_visitor{
-    char* key;
-    json_type type;
-    void* value;
-};
 ```
 
 **(4) 多种访问方法**
 (占位)
 * 直接访问 (不推荐)
 * getValue方法
-* 访问器访问
+* 访问器访问 (未实现)
