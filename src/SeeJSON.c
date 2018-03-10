@@ -10,11 +10,11 @@
 
 #ifndef JSON_PARSE_STACK_INIT_SIZE
 #define JSON_PARSE_STACK_INIT_SIZE 256
-#endif 
+#endif
 
 #ifndef JSON_ENCODE_INIT_SIZE
 #define JSON_ENCODE_INIT_SIZE 256
-#endif 
+#endif
 
 #define bool  int
 #define true  1
@@ -600,18 +600,18 @@ EXPORT void SeeJSON_Version(void)
     printf("SeeJSON ( ver-alpha 1.0.0 )  2018-01-30 \n\n");
 }
 
-void json_init(json_node* node)
+EXPORT void json_init(json_node* node)
 {
     node->type = JSON_NULL;
     node->getValue = getValue;
 }
 
-void json_set_null(json_node* node)
+EXPORT void json_set_null(json_node* node)
 {
     json_free(node);
 }
 
-int json_parse(json_node* node,const char* json)
+EXPORT int json_parse(json_node* node,const char* json)
 {
     json_context con;
     int status;
@@ -635,26 +635,26 @@ int json_parse(json_node* node,const char* json)
     return status;
 }
 
-json_type json_get_type(const json_node* node)
+EXPORT json_type json_get_type(const json_node* node)
 {
     assert(node!=NULL);
     return node->type;
 }
 
-double json_get_number(const json_node* node)
+EXPORT double json_get_number(const json_node* node)
 {
     assert(node!=NULL && node->type==JSON_NUMBER);
     return node->value.number;
 }
 
-void json_set_number(json_node* node,double n)
+EXPORT void json_set_number(json_node* node,double n)
 {
     json_free(node);
     node->value.number = n;
     node->type = JSON_NUMBER;
 }
 
-void json_free(json_node* node)
+EXPORT void json_free(json_node* node)
 {
     assert(node!=NULL);
     size_t i;
@@ -686,31 +686,31 @@ void json_free(json_node* node)
     node->type = JSON_NULL;
 }
 
-int json_get_bool(const json_node* node)
+EXPORT int json_get_bool(const json_node* node)
 {
     assert(node!=NULL && (node->type==JSON_TRUE || node->type==JSON_FALSE));
     return node->type == JSON_TRUE;
 }
 
-void json_set_bool(json_node* node,int b)
+EXPORT void json_set_bool(json_node* node,int b)
 {
     json_free(node);
     node->type = b?JSON_TRUE:JSON_FALSE;
 }
 
-const char* json_get_string(const json_node* node)
+EXPORT const char* json_get_string(const json_node* node)
 {
     assert(node!=NULL && node->type==JSON_STRING);
     return node->value.string.value;
 }
 
-size_t json_get_string_length(const json_node* node)
+EXPORT size_t json_get_string_length(const json_node* node)
 {
     assert(node!=NULL && node->type==JSON_STRING);
     return node->value.string.length;
 }
 
-void json_set_string(json_node* node,const char* str,size_t len)
+EXPORT void json_set_string(json_node* node,const char* str,size_t len)
 {
     assert(node!=NULL && (str!=NULL || len==0));
     json_free(node);
@@ -721,47 +721,47 @@ void json_set_string(json_node* node,const char* str,size_t len)
     node->type = JSON_STRING;
 }
 
-size_t json_get_array_size(const json_node* node)
+EXPORT size_t json_get_array_size(const json_node* node)
 {
     assert(node!=NULL && node->type==JSON_ARRAY);
     return node->value.array.size;
 }
 
-json_node* json_get_array_element_by_index(const json_node* node,size_t index)
+EXPORT json_node* json_get_array_element_by_index(const json_node* node,size_t index)
 {
     assert(node!=NULL && node->type==JSON_ARRAY);
     assert(index<node->value.array.size);
     return &node->value.array.element[index];
 }
 
-size_t json_get_object_size(const json_node* node)
+EXPORT size_t json_get_object_size(const json_node* node)
 {
     assert(node!=NULL && node->type==JSON_OBJECT);
     return node->value.object.size;
 }
 
-const char* json_get_object_key_by_index(const json_node* node,size_t index)
+EXPORT const char* json_get_object_key_by_index(const json_node* node,size_t index)
 {
     assert(node!=NULL && node->type==JSON_OBJECT);
     assert(index<node->value.object.size);
     return node->value.object.member[index].key;
 }
 
-size_t json_get_object_key_len_by_index(const json_node* node,size_t index)
+EXPORT size_t json_get_object_key_len_by_index(const json_node* node,size_t index)
 {
     assert(node!=NULL && node->type==JSON_OBJECT);
     assert(index<node->value.object.size);
     return node->value.object.member[index].key_len;
 }
 
-json_node* json_get_object_value_by_index(const json_node* node,size_t index)
+EXPORT json_node* json_get_object_value_by_index(const json_node* node,size_t index)
 {
     assert(node!=NULL && node->type==JSON_OBJECT);
     assert(index<node->value.object.size);
     return &node->value.object.member[index].node;
 }
 
-char* json_encode(const json_node* node,size_t* length)
+EXPORT char* json_encode(const json_node* node,size_t* length)
 {
     json_context con;
     assert(node!=NULL);
@@ -776,12 +776,12 @@ char* json_encode(const json_node* node,size_t* length)
     return con.stack;
 }
 
-int json_decode(json_node* node,const char* json_str)
+EXPORT int json_decode(json_node* node,const char* json_str)
 {
     return json_parse(node,json_str);
 }
 
-const char* read_string_from_file(char* path)
+EXPORT const char* read_string_from_file(char* path)
 {
     assert(path!=NULL);
     FILE *fp;
@@ -809,7 +809,7 @@ const char* read_string_from_file(char* path)
     return str;
 }
 
-json_node read_json_from_file(char* path)
+EXPORT json_node read_json_from_file(char* path)
 {
     assert(path!=NULL);
     const char* str;
@@ -826,7 +826,7 @@ json_node read_json_from_file(char* path)
     return node;
 }
 
-json_visitor see_json(json_node node,const char* key)
+EXPORT json_visitor see_json(json_node node,const char* key)
 {
     json_visitor ret;
     ret.type = JSON_NULL;

@@ -7,7 +7,7 @@
 #define EXPORT extern "C" __declspec (dllexport)
 #else
 #define EXPORT __declspec (dllexport)
-#endif 
+#endif
 
 /* JSON DataType */
 typedef enum{
@@ -99,54 +99,54 @@ char* err_code[] = {
 
 EXPORT void SeeJSON_Version(void);
 
-void json_init(json_node* node);
+EXPORT void json_init(json_node* node);
 
-void json_free(json_node* node);
+EXPORT void json_free(json_node* node);
 
-void json_set_null(json_node* node);
+EXPORT void json_set_null(json_node* node);
 
-int json_get_bool(const json_node* node);
+EXPORT int json_get_bool(const json_node* node);
 
-void json_set_bool(json_node* node,int val);
+EXPORT void json_set_bool(json_node* node,int val);
 
-double json_get_number(const json_node* node);
+EXPORT double json_get_number(const json_node* node);
 
-void json_set_number(json_node* node,double val);
+EXPORT void json_set_number(json_node* node,double val);
 
-const char* json_get_string(const json_node* node);
+EXPORT const char* json_get_string(const json_node* node);
 
-size_t json_get_string_length(const json_node* node);
+EXPORT size_t json_get_string_length(const json_node* node);
 
-void json_set_string(json_node* node,const char* str,size_t len);
+EXPORT void json_set_string(json_node* node,const char* str,size_t len);
 
-size_t json_get_array_size(const json_node* node);
+EXPORT size_t json_get_array_size(const json_node* node);
 
-json_node* json_get_array_element_by_index(const json_node* node,size_t index);
+EXPORT json_node* json_get_array_element_by_index(const json_node* node,size_t index);
 
-size_t json_get_object_size(const json_node* node);
+EXPORT size_t json_get_object_size(const json_node* node);
 
-const char* json_get_object_key_by_index(const json_node* node,size_t index);
+EXPORT const char* json_get_object_key_by_index(const json_node* node,size_t index);
 
-size_t json_get_object_key_len_by_index(const json_node* node,size_t index);
+EXPORT size_t json_get_object_key_len_by_index(const json_node* node,size_t index);
 
-json_node* json_get_object_value_by_index(const json_node* node,size_t index);
+EXPORT json_node* json_get_object_value_by_index(const json_node* node,size_t index);
 
-int json_parse(json_node* json_node,const char* json_str);
-int json_decode(json_node* node,const char* json_str);
+EXPORT int json_parse(json_node* json_node,const char* json_str);
+EXPORT int json_decode(json_node* node,const char* json_str);
 
-char* json_encode(const json_node* node,size_t* length);
+EXPORT char* json_encode(const json_node* node,size_t* length);
 
-json_type json_get_type(const json_node* json_node);
+EXPORT json_type json_get_type(const json_node* json_node);
 
-const char* read_string_from_file(char* path);
+EXPORT const char* read_string_from_file(char* path);
 
-json_node read_json_from_file(char* path);
+EXPORT json_node read_json_from_file(char* path);
 
 
 
 /*****************************************************************/
 
-json_visitor see_json(json_node node,const char* key);
+EXPORT json_visitor see_json(json_node node,const char* key);
 
 
 #endif
