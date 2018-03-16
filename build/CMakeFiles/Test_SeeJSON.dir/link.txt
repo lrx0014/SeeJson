@@ -1,3 +1,0 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E remove -f CMakeFiles\Test_SeeJSON.dir/objects.a
-D:\APPs\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev0\mingw64\bin\ar.exe cr CMakeFiles\Test_SeeJSON.dir/objects.a @CMakeFiles\Test_SeeJSON.dir\objects1.rsp
-D:\APPs\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev0\mingw64\bin\gcc.exe  -ansi -pedantic -Wall   -Wl,--whole-archive CMakeFiles\Test_SeeJSON.dir/objects.a -Wl,--no-whole-archive  -o Test_SeeJSON.exe -Wl,--out-implib,libTest_SeeJSON.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\Test_SeeJSON.dir\linklibs.rsp

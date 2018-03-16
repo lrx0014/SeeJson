@@ -1,4 +1,0 @@
-D:/Github/SeeJSON/build/CMakeFiles/SeeJSON.dir
-D:/Github/SeeJSON/build/CMakeFiles/edit_cache.dir
-D:/Github/SeeJSON/build/CMakeFiles/Test_SeeJSON.dir
-D:/Github/SeeJSON/build/CMakeFiles/rebuild_cache.dir

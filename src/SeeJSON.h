@@ -1,3 +1,8 @@
+/* SeeJSON.h         */
+/* SeeJSON @Ryann    */
+/* Under Development */
+/* 2018/3/16 Updated */
+
 #ifndef SEEJSON_H_INCLUDED
 #define SEEJSON_H_INCLUDED
 
@@ -107,7 +112,6 @@ char* err_code[] = {
 /******************************************************************
                             Public APIs
 ******************************************************************/
-/*               Finished    ( 2018/2/22 Updated )               */
 
 EXPORT void        SeeJSON_Version                 (void);
 
@@ -155,12 +159,9 @@ EXPORT const char* read_string_from_file           (char* path);
 EXPORT json_node   read_json_from_file             (char* path);
 
 
-
 /******************************************************************
-                            TODOs
+                            Visit Methods
 ******************************************************************/
-
-EXPORT json_visitor      see_json   (const json_node* node,const char* key);
 
 EXPORT const char*       getString  (const json_node* node,const char* key);
 
@@ -173,6 +174,14 @@ EXPORT const json_node*  getArray   (const json_node* node,const char* key);
 EXPORT const json_node   getObject  (const json_node* node,const char* key);
 
 EXPORT const char*       getNull    (const json_node* node,const char* key);
+
+
+
+/******************************************************************
+                            TODOs
+******************************************************************/
+
+EXPORT json_visitor      see_json   (const json_node* node,const char* key);
 
 
 #endif

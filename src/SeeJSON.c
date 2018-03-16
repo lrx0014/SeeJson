@@ -1,4 +1,7 @@
-/* SeeJSON.c */
+/* SeeJSON.c         */
+/* SeeJSON @Ryann    */
+/* Under Development */
+/* 2018/3/16 Updated */
 
 #include "SeeJSON.h"
 #include <stdio.h>
