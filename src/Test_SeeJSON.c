@@ -68,7 +68,7 @@ static int status       = 0;   /* Return value of Main */
 #define TEST_SIZE_T(expect,fact) TEST_CORE((expect) == (fact), (size_t)expect, (size_t)fact, "%Iu")
 #else
 #define TEST_SIZE_T(expect,fact) TEST_CORE((expect) == (fact), (size_t)expect, (size_t)fact, "%zu")
-#endif 
+#endif
 
 
 /* Encapsulate the Test method */
@@ -480,10 +480,10 @@ static void test_parse()
     roundtrip_test();
 }
 
-static void test_for_visit_structure()
+static void test_for_visit_easy_structure()
 {
     /* Read JSON */
-    const char* json = "{\"name\":\"lrx\"}";
+    const char* json = "{\"name\":\"SeeJSON\"}";
 
     /* Parse JSON Into json_node */
     json_node node;
@@ -491,44 +491,29 @@ static void test_for_visit_structure()
     json_decode(&node,json);
 
     /* Use json.getValue() to visit it */
-    const char* k = json_get_object_key_by_index(&node,0);
-    printf("key:%s\n",k);
-    printf("name:%s\n",node.getValue(node,"name"));
+    printf("name:%s\n",getString(&node,"name"));
 }
 
 static void test_for_complex_demand()
 {
     /* Read JSON from file */
-    json_node node;
-    node = read_json_from_file("city.json");
+    json_node node = read_json_from_file("test.json");
 
-    printf("name1:%s\n",node.getValue(node,"name"));
+    const char* name = getString(&node,"Name");
+    const char* date = getString(&node,"Date");
+    printf("Name:%s\n",name);
+    printf("Date:%s\n",date);
 
-    /* Get Inner Json Object */
-    json_node city;
-    city = *(json_node*)node.getValue(node,"city");
-
-    printf("name2:%s\n",city.getValue(city,"name"));
-
-    /* Get Array Element */
-    json_node *arr = city.getValue(city,"area");
-
-    printf("area:%s\n",arr[0].value.string.value);
+    const json_node object = getObject(&node,"Object");
+    const char* str = getString(&object,"String");
 
 }
 
 static void test_for_visitor()
 {
     /* Read JSON from file */
-    json_node node;
-    node = read_json_from_file("city.json");
 
     /* Use Visitor to visit this node */
-    json_visitor city = see_json(node,"city");
-    json_visitor arr  = see_json(*(json_node*)city.value,"area");
-
-    printf("type:%d\n",arr.type);
-
 }
 
 static void test_for_visit_directly()
@@ -546,13 +531,15 @@ int main()
     SeeJSON_Version();
 
     test_parse();
-    printf("%d/%d (%3.2f%%) Cases Passed. \n",cases_passed,cases_total,cases_passed*100.0/cases_total);
+    printf("%d/%d (%3.2f%%) Cases Passed. \n\n",cases_passed,cases_total,cases_passed*100.0/cases_total);
+
+    /* test_for_visit_easy_structure(); */
 
     test_for_complex_demand();
 
-    test_for_visit_directly();
+    /* test_for_visit_directly(); */
 
-    test_for_visitor();
+    /* test_for_visitor(); */
 
     system("pause");
     return status;

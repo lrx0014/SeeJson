@@ -544,51 +544,23 @@ static void json_encode_value(json_context* con,const json_node* node)
     }
 }
 
-static void* getValue(json_node this,char* k)
+static const json_node* getValue(const json_node* this,const char* k)
 {
-    int this_size = this.value.object.size;
-    void* ret;
-    char* _null  = "null";
-    char* _true  = "true";
-    char* _false = "false";
-    char* _ntfnd = "NOT FOUND";
+    int this_size = this->value.object.size;
+    json_node* ret;
 
     int i;
     for(i=0;i<this_size;i++)
     {
-        json_member cur;
-        cur = this.value.object.member[i];
-        if(strcmp(cur.key,k)==0)
+        json_member* cur;
+        cur = &(this->value.object.member[i]);
+        if(strcmp(cur->key,k)==0)
         {
-            switch(cur.node.type)
-            {
-            case JSON_NULL:
-                ret = _null;
-                break;
-            case JSON_TRUE:
-                ret = _true;
-                break;
-            case JSON_FALSE:
-                ret = _false;
-                break;
-            case JSON_STRING:
-                ret = (cur.node.value.string.value);
-                break;
-            case JSON_NUMBER:
-                ret = &(cur.node.value.number);
-                break;
-            case JSON_ARRAY:
-                ret = (cur.node.value.array.element);
-                break;
-            case JSON_OBJECT:
-                ret = &(cur.node);
-                break;
-            }
+            ret = &cur->node;
             return ret;
         }
     }
-    ret = _ntfnd;
-    return ret;
+    return NULL;
 }
 
 /**********************************************************
@@ -826,32 +798,71 @@ EXPORT json_node read_json_from_file(char* path)
     return node;
 }
 
-EXPORT json_visitor see_json(json_node node,const char* key)
+EXPORT const char* getString(const json_node* node,const char* key)
 {
-    json_visitor ret;
-    ret.type = JSON_NULL;
-
-    if(node.type==JSON_NULL)
+    assert(node!=NULL);
+    isGetErr = 0;
+    const json_node* temp = node->getValue(node,key);
+    if(temp->type != JSON_STRING)
     {
-        return ret;
+        isGetErr = JSON_GET_STRING_ERROR;
+        return "{ERROR:This node does not contain a string!}";
     }
+    return temp->value.string.value;
+}
 
-    size_t this_size = node.value.object.size;
-
-    int i;
-    for(i=0;i<this_size;i++)
+EXPORT const double getNumber(const json_node* node,const char* key)
+{
+    assert(node!=NULL);
+    isGetErr = 0;
+    const json_node* temp = node->getValue(node,key);
+    if(temp->type != JSON_NUMBER)
     {
-        json_member cur = node.value.object.member[i];
-        if(strcmp(cur.key,key)==0)
-        {
-            ret.key = key;
-            ret.type = cur.node.type;
-            ret.value = &cur.node;
-            return ret;
-        }
+        isGetErr = JSON_GET_NUMBER_ERROR;
+        return 0;
     }
+    return temp->value.number;
+}
 
-    return ret;
+EXPORT const int getBoolean(const json_node* node,const char* key)
+{
+    assert(node!=NULL);
+    isGetErr = 0;
+    const json_node* temp = node->getValue(node,key);
+    if(temp->type!=JSON_FALSE || temp->type!=JSON_TRUE)
+    {
+        isGetErr = JSON_GET_BOOLEAN_ERROR;
+        return false;
+    }
+    if(temp->type == JSON_TRUE)
+    {
+        return 1;
+    }
+    if(temp->type == JSON_FALSE)
+    {
+        return 0;
+    }
+}
+
+EXPORT const char* getNull(const json_node* node,const char* key)
+{
+    assert(node!=NULL);
+    isGetErr = 0;
+    const json_node* temp = node->getValue(node,key);
+    if(temp->type != JSON_NULL)
+    {
+        isGetErr = JSON_GET_NULL_ERROR;
+        return "{ERROR Type!}";
+    }
+    return "null";
+}
+
+EXPORT const json_node* getArray(const json_node* node,const char* key)
+{
 
 }
 
+EXPORT const json_node getObject(const json_node* node,const char* key)
+{
+
+}

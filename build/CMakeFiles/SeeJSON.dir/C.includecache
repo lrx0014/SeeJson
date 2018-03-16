@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+D:/Github/SeeJSON/src/SeeJSON.c
+SeeJSON.h
+D:/Github/SeeJSON/src/SeeJSON.h
+stdio.h
+-
+assert.h
+-
+stdlib.h
+-
+errno.h
+-
+math.h
+-
+string.h
+-
+
+D:/Github/SeeJSON/src/SeeJSON.h
+stddef.h
+-
+

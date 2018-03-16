@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Test_SeeJSON"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="D:/Github/SeeJSON/build"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="SeeJSON">
+				<Option output="D:/Github/SeeJSON/build/libSeeJSON.dll" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/Github/SeeJSON/build"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 SeeJSON"/>
+					<CompileFile command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="SeeJSON/fast">
+				<Option output="D:/Github/SeeJSON/build/libSeeJSON.dll" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/Github/SeeJSON/build"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 SeeJSON/fast"/>
+					<CompileFile command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="D:/Github/SeeJSON/build"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Test_SeeJSON">
+				<Option output="D:/Github/SeeJSON/build/Test_SeeJSON.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/Github/SeeJSON/build"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 Test_SeeJSON"/>
+					<CompileFile command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Test_SeeJSON/fast">
+				<Option output="D:/Github/SeeJSON/build/Test_SeeJSON.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/Github/SeeJSON/build"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 Test_SeeJSON/fast"/>
+					<CompileFile command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="D:/Github/SeeJSON/build"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/APPs/mingw-w64/x86_64-7.1.0-posix-seh-rt_v5-rev0/mingw64/bin/mingw32-make.exe -f &quot;D:/Github/SeeJSON/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="D:/Github/SeeJSON/src/SeeJSON.c">
+			<Option target="SeeJSON"/>
+		</Unit>
+		<Unit filename="D:/Github/SeeJSON/src/SeeJSON.h">
+			<Option target="SeeJSON"/>
+		</Unit>
+		<Unit filename="D:/Github/SeeJSON/src/Test_SeeJSON.c">
+			<Option target="Test_SeeJSON"/>
+		</Unit>
+		<Unit filename="D:/Github/SeeJSON/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
