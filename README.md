@@ -25,9 +25,15 @@ SeeJson是用纯C语言(C89标准)实现的一个json工具库，包含能够处
 * 直接引入.c和.h
 * 编译为链接库
 
-**(1) JSON字符串解码为JSON节点**
+**(1) 多种访问方法**
+(占位)
+* 直接访问 (不推荐)
+* getXXX系列方法
+* 访问器访问 (未实现)
+
+**(2) JSON字符串解码为JSON节点**
 ```c
-    const char* json = "{\"name\":\"Amy\"}"; /* 创建JSON字符串 */
+    const char* json = "{\"name\":\"SeeJSON\"}"; /* 创建JSON字符串 */
     
     json_node node; /* 创建JSON初始节点 */
     
@@ -35,14 +41,75 @@ SeeJson是用纯C语言(C89标准)实现的一个json工具库，包含能够处
     
     json_decode(&node,json); /* 将字符串转换为JSON_NODE结构 */
 
-    printf("name:%s\n",node.getValue(node,"name")); /* 使用getValue成员方法获取键"name"对应的值 */
+    printf("name:%s\n",getString(&node,"name")); /* 使用getValue系列方法获取键"name"对应的值 */
 ```
 **运行效果:**
 ```shell
-name:Amy
+name:SeeJSON
 ```
 
-**(2) JSON节点编码为JSON字符串**
+**更复杂的应用**
+
+有如下JSON文档，名字为"test.json"
+```json
+{
+    "Name":"SeeJSON",
+    "Date":"3/16/2018",
+    "Object":{
+        "Number":123,
+        "String":"hello,json",
+        "Boolean":"True",
+        "Null":null,
+        "Array":["a1",2333,null]
+    }
+}
+```
+使用read_json_from_file(path)读取这个文件，可以直接返回一个json_node结构，而无需再手动设置
+```c
+json_node node = read_json_from_file("test.json");
+```
+按照以下方法可以访问此JSON文件的相关数据：
+```c
+    /* getString方法用于访问字符串类型的节点 */
+    /* 此系列方法还有: getNumber, getNull, getBoolean, getArray, getObject */
+    const char* name = getString(&node,"Name");
+    const char* date = getString(&node,"Date");
+
+    printf("Name:%s\n",name);
+    printf("Date:%s\n",date);
+
+    /* getObject方法用于访问JSON对象类型的节点 */
+    const json_node object   = getObject(&node,"Object");
+    const double    _number  = getNumber(&object,"Number");
+    const int       _boolean = getBoolean(&object,"Boolean");
+    const char*     _null    = getNull(&object,"Null");
+    const char*     _str     = getString(&object,"String");
+
+    printf("Number:%lf\n",_number);
+    printf("String:%s\n",_str);
+    printf("Null:%s\n",_null);
+    printf("Boolean:%d\n",_boolean);
+
+    /* getArray方法用于访问数组类型的节点 */
+    const json_node* arr = getArray(&object,"Array");
+    printf("Array_String:%s\n",getString(&arr[0],""));
+    printf("Array_Number:%lf\n",getNumber(&arr[1],""));
+    printf("Array_Null:%s\n",getNull(&arr[2],""));
+```
+**运行效果**
+```shell
+Name:SeeJSON
+Date:3/16/2018
+Number:123.000000
+String:hello,json
+Null:null
+Boolean:0
+Array_String:a1
+Array_Number:2333.000000
+Array_Null:null
+```
+
+**(3) JSON节点编码为JSON字符串**
 ```c
 /* 本例使用的节点是上面编码的那一个node */
 
@@ -56,55 +123,11 @@ printf("length:%d\n",length); /* 输出字符串长度 */
 ```
 **运行效果:**
 ```shell
-string:{"name":"Amy"}
-length:14
+string:{"name":"SeeJSON"}
+length:18
 ```
-**更复杂的应用**
 
-有如下JSON文档，名字为"city.json"
-```json
-{
-    "name": "北京市",
-    "city": {
-        "name": "城区",
-        "area": [
-          "东城区",
-          "海淀区",
-          "朝阳区",
-          "其他"
-        ]
-    }
-}
-```
-使用read_json_from_file(path)读取这个文件，可以直接返回一个json_node结构，而无需再手动设置
-```c
-json_node node = read_json_from_file("city.json");
-```
-按照JSON文档的层级关系分别调用getValue()，getValue的返回值是空类型指针，必须自己按照对应的数据类型进行类型转换，以后(可能)会实现一个自动类型转换功能。
-```c
-printf("name1:%s\n",node.getValue(node,"name")); /* 获取第一层的name属性，也就是"北京市"这个字符串 */
-
-/* 获取内层的city属性，这个属性对应的值被解释为一个新的json_object */
-/* 所以要再声明一个json_node节点city来存储它，不要忘记转换类型 */
-json_node city = *(json_node*)node.getValue(node,"city"); 
-
-/* 从内层节点中取得第二个name属性，"城区"这个字符串 */
-printf("name2:%s\n",city.getValue(city,"name"));
-
-/* 获取area属性，SeeJSON的数组类型为JSON_ARRAY，本质是一个json_node数组 */
-/* 所以每个数组元素也需要单独再处理一下 */
-json_node *arr = city.getValue(city,"area");
-
-/* 访问数组元素，目前这个方法还不友好，正在想办法 */
-printf("area:%s\n",arr[0].value.string.value);
-```
-**运行效果**
-```shell
-name1:北京市
-name2:城区
-area:东城区
-```
-**(3) 数据结构和支持的数据类型**
+**(4) 数据结构和支持的数据类型**
 
 SeeJSON内置的数据类型有：布尔型(true,false)、空值(null)、数值型(number)、字符串型(string)、数组(array)、对象(object)
 
@@ -134,9 +157,3 @@ struct json_member{
     json_node node;
 };
 ```
-
-**(4) 多种访问方法**
-(占位)
-* 直接访问 (不推荐)
-* getValue方法
-* 访问器访问 (未实现)
