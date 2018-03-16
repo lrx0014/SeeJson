@@ -31,7 +31,7 @@ SeeJson是用纯C语言(C89标准)实现的一个json工具库，包含能够处
 * getXXX系列方法
 * 访问器访问 (未实现)
 
-**(2) JSON字符串解码为JSON节点(getXXX系列方法) **
+**(2) JSON字符串解码为JSON节点(getXXX系列方法)**
 ```c
     const char* json = "{\"name\":\"SeeJSON\"}"; /* 创建JSON字符串 */
     
@@ -48,7 +48,7 @@ SeeJson是用纯C语言(C89标准)实现的一个json工具库，包含能够处
 name:SeeJSON
 ```
 
-**更复杂的应用(getXXX系列方法) **
+**更复杂的应用(getXXX系列方法)**
 
 有如下JSON文档，名字为"test.json"
 ```json
