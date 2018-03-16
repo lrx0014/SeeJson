@@ -6,6 +6,6 @@
         "String":"hello,json",
         "Boolean":"True",
         "Null":null,
-        "Array":["a1","a2","a3"]
+        "Array":["a1",2333,null,"True"]
     }
 }

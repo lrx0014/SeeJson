@@ -501,12 +501,25 @@ static void test_for_complex_demand()
 
     const char* name = getString(&node,"Name");
     const char* date = getString(&node,"Date");
+
     printf("Name:%s\n",name);
     printf("Date:%s\n",date);
 
-    const json_node object = getObject(&node,"Object");
-    const char* str = getString(&object,"String");
+    const json_node object   = getObject(&node,"Object");
+    const double    _number  = getNumber(&object,"Number");
+    const int       _boolean = getBoolean(&object,"Boolean");
+    const char*     _null    = getNull(&object,"Null");
+    const char*     _str     = getString(&object,"String");
 
+    printf("Number:%lf\n",_number);
+    printf("String:%s\n",_str);
+    printf("Null:%s\n",_null);
+    printf("Boolean:%d\n",_boolean);
+
+    const json_node* arr = getArray(&object,"Array");
+    printf("Array_String:%s\n",getString(&arr[0],""));
+    printf("Array_Number:%lf\n",getNumber(&arr[1],""));
+    printf("Array_Null:%s\n",getNull(&arr[2],""));
 }
 
 static void test_for_visitor()

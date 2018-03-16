@@ -802,12 +802,18 @@ EXPORT const char* getString(const json_node* node,const char* key)
 {
     assert(node!=NULL);
     isGetErr = 0;
+    if(strcmp(key,"")==0 && node->type==JSON_STRING)
+    {
+        return node->value.string.value;
+    }
+
     const json_node* temp = node->getValue(node,key);
     if(temp->type != JSON_STRING)
     {
         isGetErr = JSON_GET_STRING_ERROR;
         return "{ERROR:This node does not contain a string!}";
     }
+
     return temp->value.string.value;
 }
 
@@ -815,6 +821,11 @@ EXPORT const double getNumber(const json_node* node,const char* key)
 {
     assert(node!=NULL);
     isGetErr = 0;
+    if(strcmp(key,"")==0 && node->type==JSON_NUMBER)
+    {
+        return node->value.number;
+    }
+
     const json_node* temp = node->getValue(node,key);
     if(temp->type != JSON_NUMBER)
     {
@@ -828,6 +839,18 @@ EXPORT const int getBoolean(const json_node* node,const char* key)
 {
     assert(node!=NULL);
     isGetErr = 0;
+    if(strcmp(key,"")==0 && (node->type==JSON_TRUE||node->type==JSON_FALSE))
+    {
+        printf("aaa\n");
+        if(node->type==JSON_TRUE)
+        {
+            return 1;
+        }
+        if(node->type==JSON_FALSE)
+        {
+            return 0;
+        }
+    }
     const json_node* temp = node->getValue(node,key);
     if(temp->type!=JSON_FALSE || temp->type!=JSON_TRUE)
     {
@@ -848,6 +871,10 @@ EXPORT const char* getNull(const json_node* node,const char* key)
 {
     assert(node!=NULL);
     isGetErr = 0;
+    if(strcmp(key,"")==0 && node->type==JSON_NULL)
+    {
+        return "null";
+    }
     const json_node* temp = node->getValue(node,key);
     if(temp->type != JSON_NULL)
     {
@@ -857,12 +884,36 @@ EXPORT const char* getNull(const json_node* node,const char* key)
     return "null";
 }
 
-EXPORT const json_node* getArray(const json_node* node,const char* key)
-{
-
-}
-
 EXPORT const json_node getObject(const json_node* node,const char* key)
 {
+    assert(node!=NULL);
+    isGetErr = 0;
+    if(strcmp(key,"")==0 && node->type==JSON_OBJECT)
+    {
+        /* TODO */
+    }
+    const json_node* temp = node->getValue(node,key);
+    if(temp->type != JSON_OBJECT)
+    {
+        isGetErr = JSON_GET_OBJECT_ERROR;
+        return *node;
+    }
+    return *temp;
+}
 
+EXPORT const json_node* getArray(const json_node* node,const char* key)
+{
+    assert(node!=NULL);
+    isGetErr = 0;
+    if(strcmp(key,"")==0 && node->type==JSON_ARRAY)
+    {
+        /* TODO */
+    }
+    const json_node* temp = node->getValue(node,key);
+    if(temp->type != JSON_ARRAY)
+    {
+        isGetErr = JSON_GET_ARRAY_ERROR;
+        return NULL;
+    }
+    return temp->value.array.element;
 }
