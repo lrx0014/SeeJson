@@ -9,9 +9,17 @@
 #include <stddef.h> /* size_t */
 
 #ifdef __cplusplus
-#define EXPORT extern "C" __declspec (dllexport)
+    #ifdef _WIN32
+        #define EXPORT extern "C" __declspec (dllexport)
+    #else
+        #define EXPORT extern "C"
+    #endif // _WIN32
 #else
-#define EXPORT __declspec (dllexport)
+    #ifdef _WIN32
+        #define EXPORT __declspec (dllexport)
+    #else
+        #define EXPORT
+    #endif // _WIN32
 #endif
 
 int isGetErr = 0;

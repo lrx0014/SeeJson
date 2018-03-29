@@ -868,6 +868,7 @@ EXPORT const int getBoolean(const json_node* node,const char* key)
     {
         return 0;
     }
+    return -1;
 }
 
 EXPORT const char* getNull(const json_node* node,const char* key)
